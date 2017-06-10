@@ -10,4 +10,13 @@
 
   <!-- compiled JS -->
   <script src="/bundle.js"></script>
+  <script>
+// bootstrap element
+const MyButton = props => {
+  console.log(props);
+  return React.createElement('button', {}, ['Assi'])
+};
+
+ReactDOM.render(React.createElement(MyButton, {}, []), document.getElementById('root'));
+  </script>
 </body>
