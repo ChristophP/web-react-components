@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 
 const Empty = () => null;
 
-// This convert a DOM node into a react component
+// This converts a DOM node into a react component
 const toVdom = (element, nodeName) => {
   const { attributes, childNodes, nodeType, nodeValue } = element;
   if (nodeType === 3) return nodeValue;
@@ -32,15 +32,11 @@ export default function register(Component, tagName) {
     }
 
     renderElement() {
-      ReactDOM.render(
-        toVdom(this, Component),
-        this,
-      );
+      ReactDOM.render(toVdom(this, Component), this);
     }
 
-    // TODO use unmount component at node
     unRenderElement() {
-      render(React.createElement(Empty), this.shadowRoot, this._root);
+      ReactDOM.unmountComponentAtNode(this);
     }
   }
 
