@@ -3,13 +3,12 @@ import ReactDOM from 'react-dom';
 
 const Empty = () => null;
 
-// TODO make this work in React
 // This convert a DOM node into a react component
 const toVdom = (element, nodeName) => {
-  if (element.nodeType === 3) return element.nodeValue;
-  if (element.nodeType !== 1) return null;
+  const { attributes, childNodes, nodeType, nodeValue } = element;
+  if (nodeType === 3) return nodeValue;
+  if (nodeType !== 1) return null;
 
-  const { attributes, childNodes } = element;
   const props = Array.from(attributes).reduce(
     (obj, { name, value }) => ({ ...obj, [name]: value }), {});
   const children = Array.from(childNodes).map(toVdom);
