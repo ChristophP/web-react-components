@@ -18,6 +18,7 @@ module.exports = {
 		}]
 	},
 	externals: {
-		preact: "React"
+		react: "React",
+		'react-dom': "ReactDOM"
 	}
 };
