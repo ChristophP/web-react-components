@@ -12,11 +12,25 @@
   <script src="/bundle.js"></script>
   <script>
 // bootstrap element
-const MyButton = props => {
-  console.log(props);
-  return React.createElement('button', {}, ['Assi'])
+const MyButton = ({ name, children }) => {
+  console.log({ name, children });
+  return React.createElement('button', {}, [
+    name,
+    React.createElement('div', {}, children),
+  ])
 };
 
-ReactDOM.render(React.createElement(MyButton, {}, []), document.getElementById('root'));
+// register react component as custom element
+WRC.default(MyButton, 'custom-button');
+
+const props = {
+  name: 'Peter',
+};
+
+const element = React.createElement('custom-button', props, [
+  React.createElement('span', {}, ['i am a child']),
+]);
+
+ReactDOM.render(element, document.getElementById('root'));
   </script>
 </body>

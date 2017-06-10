@@ -3,6 +3,7 @@ module.exports = {
 	output: {
     path: __dirname + "/dist",
 		filename: "bundle.js",
+		library: 'WRC',
 		libraryTarget: "umd"
 	},
 	module: {
@@ -12,8 +13,7 @@ module.exports = {
 			loader: "babel-loader",
 			query: {
 				presets: ["es2015", "react"],
-				plugins: [
-				]
+				plugins: ["transform-object-rest-spread"]
 			},
 		}]
 	},
