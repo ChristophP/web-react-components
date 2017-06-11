@@ -39,8 +39,5 @@ export default function register(Component, tagName, baseClass = HTMLElement) {
     }
   }
 
-	return document.registerElement(
-		tagName || Component.displayName || Component.name,
-		WebReactComponent
-	);
+	return document.registerElement(tagName, WebReactComponent);
 }
