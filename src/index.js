@@ -9,12 +9,12 @@ const toVdom = (element, nodeName) => {
   if (nodeType === 3) return nodeValue;
   if (nodeType !== 1) return null;
 
+  const elementType = nodeName || element.nodeName.toLowerCase();
   const props = Array.from(attributes).reduce(
     (obj, { name, value }) => ({ ...obj, [name]: value }), {});
   const children = Array.from(childNodes).map(toVdom);
 
-  return React.createElement(nodeName
-    || element.nodeName.toLowerCase(), props, children);
+  return React.createElement(elementType, props, children);
 };
 
 export default function register(Component, tagName) {
