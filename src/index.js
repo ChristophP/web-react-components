@@ -18,6 +18,7 @@ const toVdom = (element, nodeName) => {
   return React.createElement(elementType, props, children);
 };
 
+// this function takes care of JSON parsing values if wrapped by curly braces
 const parseAttribute = value => (
   (value.startsWith('{') && value.endsWith('}')) ?
     JSON.parse(value.slice(1, -1)) : value
