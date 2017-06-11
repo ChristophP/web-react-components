@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-const Empty = () => null;
-
 // This converts a DOM node into a react component
 const toVdom = (element, nodeName) => {
   const { attributes, childNodes, nodeType, nodeValue } = element;
@@ -16,6 +14,7 @@ const toVdom = (element, nodeName) => {
 
   return React.createElement(elementType, props, children);
 };
+
 
 export default function register(Component, tagName, baseClass = HTMLElement) {
   class WebReactComponent extends baseClass {
