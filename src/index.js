@@ -9,12 +9,16 @@ const toVdom = (element, nodeName) => {
 
   const elementType = nodeName || element.nodeName.toLowerCase();
   const props = Array.from(attributes).reduce(
-    (obj, { name, value }) => ({ ...obj, [name]: value }), {});
-  const children = Array.from(childNodes).map(toVdom);
+    (obj, { name, value }) => ({ ...obj, [name]: parseAttribute(value) }), {});
+  const children = Array.from(childNodes).map(child => toVdom(child));
 
   return React.createElement(elementType, props, children);
 };
 
+const parseAttribute = value => (
+  (value.startsWith('{') && value.endsWith('}')) ?
+    JSON.parse(value.slice(1, -1)) : value
+);
 
 export default function register(Component, tagName, baseClass = HTMLElement) {
   class WebReactComponent extends baseClass {

@@ -12,25 +12,24 @@
   <script src="/bundle.js"></script>
   <script>
 // bootstrap element
-const MyButton = ({ name, children }) => {
-  console.log({ name, children });
+const MyButton = props => {
+  console.log(props);
+  const { name, children, age = 'unknown', fruits = [] } = props;
   return React.createElement('button', {}, [
     name,
+    'Age ' + age,
     React.createElement('div', {}, children),
-  ])
+    React.createElement('ul', {}, fruits.map(fruit =>
+      React.createElement('li', {}, [fruit]))),
+  ]);
 };
 
 // register react component as custom element
 WRC.default(MyButton, 'custom-button');
-
-const props = {
-  name: 'Peter',
-};
-
-const element = React.createElement('custom-button', props, [
-  React.createElement('span', {}, ['i am a child']),
-]);
-
-ReactDOM.render(element, document.getElementById('root'));
   </script>
+
+  <!-- render the custom element -->
+  <custom-button name="Peter" age="{45}" fruits='{["apple", "orange", "banana"]}'>
+    <span>I am a child</span>
+  </custom-button>
 </body>
