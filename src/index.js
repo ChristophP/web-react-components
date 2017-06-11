@@ -1,32 +1,46 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// This converts a DOM node into a react component
-const toVdom = (element, nodeName) => {
-  const { attributes, childNodes, nodeType, nodeValue } = element;
-  if (nodeType === 3) return nodeValue;
-  if (nodeType !== 1) return null;
+const parseAttribute = ({ name, value }) => {
+  // treat on... attribute values as code, like with e.g. native onclick
+  if (name.match(/on.+/)) {
+    return () => eval(value); // yes, that's evil ... like the native ones ;)
+  }
 
-  const elementType = nodeName || element.nodeName.toLowerCase();
-  const props = Array.from(attributes)
-    // exclude data-reactid
-    .filter(({ name }) => name !== 'data-reactid')
-    .reduce(
-    (obj, { name, value }) => ({ ...obj, [name]: parseAttribute(value) }), {});
-  const children = Array.from(childNodes).map(child => toVdom(child));
+  try {
+    // try to parse attribute values as JSON, e.g.
+    // - "1" -> 1
+    // - "true" -> true
+    // - "null" -> null
+    // - "[1, null, \"foo\"]" -> [1, null, 'foo']
+    return JSON.parse(value);
+  } catch (err) {
+    // convert attribute values like "foo,1,baz" to ['foo', '1', 'baz']
+    const values = value.split(',');
+    if (values.length > 1) return values;
 
-  return React.createElement(elementType, props, children);
+    // or just return the raw value as string
+    return value;
+  }
 };
 
-// this function takes care of JSON parsing values if wrapped by curly braces
-const parseAttribute = value => (
-  (value.startsWith('{') && value.endsWith('}')) ?
-    JSON.parse(value.slice(1, -1)) : value
-);
+// ATTENTION: all attribute names are lowercase in HTML, always!
+const convertAttributes = attributes =>
+  [].slice.call(attributes)
+    .reduce((obj, attr) =>
+      ({ ...obj, [attr.name]: parseAttribute(attr) }),
+      {}
+    );
 
-export default function register(Component, tagName, baseClass = HTMLElement) {
-  class WebReactComponent extends baseClass {
+const convertChildren = innerHTML =>
+  innerHTML.trim() !== ''
+    ? <div dangerouslySetInnerHTML={{__html: innerHTML }} />
+    : null;
+
+export default function register(Component, tagName, BaseClass = HTMLElement) {
+  class WebReactComponent extends BaseClass {
     attachedCallback() {
+      this._origInnerHTML = this.innerHTML;
       this.renderElement();
     }
 
@@ -35,17 +49,22 @@ export default function register(Component, tagName, baseClass = HTMLElement) {
     }
 
     detachedCallback() {
-      this.unRenderElement();
+      ReactDOM.unmountComponentAtNode(this);
     }
 
     renderElement() {
-      ReactDOM.render(toVdom(this, Component), this);
-    }
-
-    unRenderElement() {
-      ReactDOM.unmountComponentAtNode(this);
+      ReactDOM.render(
+        React.createElement(
+          Component,
+          convertAttributes(this.attributes),
+          // FIXME: orig children cannot change later by external (non React)
+          // DOM manipulation
+          convertChildren(this._origInnerHTML),
+        ),
+        this,
+      );
     }
   }
 
-	return document.registerElement(tagName, WebReactComponent);
+  return document.registerElement(tagName, WebReactComponent);
 }

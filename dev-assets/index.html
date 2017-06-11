@@ -10,26 +10,39 @@
 
   <!-- compiled JS -->
   <script src="/bundle.js"></script>
-  <script>
-// bootstrap element
-const MyButton = props => {
-  console.log(props);
-  const { name, children, age = 'unknown', fruits = [] } = props;
-  return React.createElement('button', {}, [
-    name,
-    'Age ' + age,
-    React.createElement('div', { key: 'chilren' }, children),
-    React.createElement('ul', { key: 'fruitList' }, fruits.map((fruit, key) =>
-      React.createElement('li', { key }, fruit))),
-  ]);
-};
 
-// register react component as custom element
-WRC.default(MyButton, 'custom-button');
+  <script>
+    // bootstrap element
+    const h = React.createElement;
+    const style = { backgroundColor: '#eee', padding: '1em' };
+    const MyComponent = ({
+      name,
+      children,
+      age = 'unknown',
+      fruits = [],
+      onclickbutton = Function.prototype,
+    } = {}) =>
+      h('div', null,
+        h('h1', null, name),
+        h('button', { onClick: onclickbutton }, 'Click me!'),
+        h('p', null, 'Age: ' + age),
+        children && h('div', { style }, children),
+        h('ul', null, fruits.map((fruit, key) =>
+          h('li', { key }, fruit))
+        ),
+      );
+
+    // register react component as custom element
+    WRC.default(MyComponent, 'my-component');
   </script>
 
   <!-- render the custom element -->
-  <custom-button name="Peter" age="{45}" fruits='{["apple", "orange", "banana"]}'>
-    <span>I am a child</span>
-  </custom-button>
+  <my-component
+    name="Peter"
+    age="45"
+    fruits="apple,orange,banana"
+    onclickbutton="alert('clicked')"
+  >
+    I'm a <em>native</em> child
+  </my-component>
 </body>
