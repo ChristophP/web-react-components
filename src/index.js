@@ -8,7 +8,10 @@ const toVdom = (element, nodeName) => {
   if (nodeType !== 1) return null;
 
   const elementType = nodeName || element.nodeName.toLowerCase();
-  const props = Array.from(attributes).reduce(
+  const props = Array.from(attributes)
+    // exclude data-reactid
+    .filter(({ name }) => name !== 'data-reactid')
+    .reduce(
     (obj, { name, value }) => ({ ...obj, [name]: parseAttribute(value) }), {});
   const children = Array.from(childNodes).map(child => toVdom(child));
 

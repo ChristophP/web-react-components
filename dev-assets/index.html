@@ -18,9 +18,9 @@ const MyButton = props => {
   return React.createElement('button', {}, [
     name,
     'Age ' + age,
-    React.createElement('div', {}, children),
-    React.createElement('ul', {}, fruits.map(fruit =>
-      React.createElement('li', {}, [fruit]))),
+    React.createElement('div', { key: 'chilren' }, children),
+    React.createElement('ul', { key: 'fruitList' }, fruits.map((fruit, key) =>
+      React.createElement('li', { key }, fruit))),
   ]);
 };
 
