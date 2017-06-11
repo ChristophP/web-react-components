@@ -17,8 +17,8 @@ const toVdom = (element, nodeName) => {
   return React.createElement(elementType, props, children);
 };
 
-export default function register(Component, tagName) {
-  class WebReactComponent extends HTMLElement {
+export default function register(Component, tagName, baseClass = HTMLElement) {
+  class WebReactComponent extends baseClass {
     attachedCallback() {
       this.renderElement();
     }
