@@ -46,18 +46,18 @@
     name="Peter"
     age="45"
     fruits='["apple","orange","banana"]'
-    onclickbutton="console.log('attribute callback `onclickbutton` triggered')"
+    onClickButton="console.log('attribute callback `onclickbutton` triggered')"
   >
     I'm a <em>native</em> child
   </my-component>
 
   <script>
     const myComponent = document.getElementById('myComponent');
-    myComponent.addEventListener('clickbutton', (e) => {
-      console.log('Event `clickbutton` triggered', e)
+    myComponent.addEventListener('onClickButton', (e) => {
+      console.log('Event `onClickButton` triggered', e)
     });
-    myComponent.addEventListener('foobar', (e) => {
-      console.log('Event `foobar` triggered', e)
+    myComponent.addEventListener('fooBar', (e) => {
+      console.log('Event `fooBar` triggered', e)
     });
   </script>
 </body>

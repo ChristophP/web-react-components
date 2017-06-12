@@ -25,18 +25,22 @@ const convertAttributes = (node, attributeNames) =>
 
 const convertEvents = (node, eventNames) =>
   eventNames.reduce((obj, name) => {
-    const domAttrName = name.toLowerCase();
-    const domAttrValue = node.getAttribute(domAttrName);
-    const domEventName = domAttrName.replace(/^on/, '');
+    const value = node.getAttribute(name);
 
     return ({
       ...obj,
       [name](data) {
-        const domEvent = new Event(domEventName, { bubbles: true });
+        const domEvent = new Event(name, { bubbles: true });
         domEvent.data = data;
         node.dispatchEvent(domEvent);
 
-        if (domAttrValue) eval(domAttrValue);
+        if (value) {
+          try {
+            eval(value);
+          } catch (err) {
+            console.error(err);
+          }
+        }
       },
     });
   }, {});
