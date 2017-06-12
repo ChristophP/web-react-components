@@ -38,11 +38,19 @@
 
   <!-- render the custom element -->
   <my-component
+    id="myComponent"
     name="Peter"
     age="45"
     fruits="apple,orange,banana"
-    onclickbutton="alert('clicked')"
+    onclickbutton="console.log('attribute callback `onclickbutton` triggered')"
   >
     I'm a <em>native</em> child
   </my-component>
+
+  <script>
+    document.getElementById('myComponent')
+      .addEventListener('clickbutton', () => {
+        console.log('Event `clickbutton` triggered')
+      });
+  </script>
 </body>
