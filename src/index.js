@@ -1,32 +1,59 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// This converts a DOM node into a react component
-const toVdom = (element, nodeName) => {
-  const { attributes, childNodes, nodeType, nodeValue } = element;
-  if (nodeType === 3) return nodeValue;
-  if (nodeType !== 1) return null;
-
-  const elementType = nodeName || element.nodeName.toLowerCase();
-  const props = Array.from(attributes)
-    // exclude data-reactid
-    .filter(({ name }) => name !== 'data-reactid')
-    .reduce(
-    (obj, { name, value }) => ({ ...obj, [name]: parseAttribute(value) }), {});
-  const children = Array.from(childNodes).map(child => toVdom(child));
-
-  return React.createElement(elementType, props, children);
+const parseAttribute = (value) => {
+  try {
+    // try to parse attribute values as JSON, e.g.
+    // - "1" -> 1
+    // - "true" -> true
+    // - "null" -> null
+    // - "[1, null, \"foo\"]" -> [1, null, 'foo']
+    return JSON.parse(value);
+  } catch (err) {
+    // or just return the raw value as string
+    return value;
+  }
 };
 
-// this function takes care of JSON parsing values if wrapped by curly braces
-const parseAttribute = value => (
-  (value.startsWith('{') && value.endsWith('}')) ?
-    JSON.parse(value.slice(1, -1)) : value
-);
+// ATTENTION: all attribute names are lowercase in HTML, always!
+const convertAttributes = (node, attributeNames) =>
+  attributeNames.reduce((obj, name) => {
+    const value = node.getAttribute(name.toLowerCase());
 
-export default function register(Component, tagName, baseClass = HTMLElement) {
-  class WebReactComponent extends baseClass {
+    return ({ ...obj, [name]: parseAttribute(value) });
+  }, {});
+
+const convertEvents = (node, eventNames) =>
+  eventNames.reduce((obj, name) => {
+    const value = node.getAttribute(name);
+
+    return ({
+      ...obj,
+      [name](data) {
+        const domEvent = new Event(name, { bubbles: true });
+        domEvent.data = data;
+        node.dispatchEvent(domEvent);
+
+        if (value) {
+          try {
+            eval(value);
+          } catch (err) {
+            console.error(err);
+          }
+        }
+      },
+    });
+  }, {});
+
+const convertChildren = innerHTML =>
+  innerHTML.trim() !== ''
+    ? <div dangerouslySetInnerHTML={{__html: innerHTML }} />
+    : null;
+
+export function register(ReactComponent, tagName, { attributes, events } = {}) {
+  class WebReactComponent extends HTMLElement {
     attachedCallback() {
+      this._origInnerHTML = this.innerHTML;
       this.renderElement();
     }
 
@@ -35,17 +62,27 @@ export default function register(Component, tagName, baseClass = HTMLElement) {
     }
 
     detachedCallback() {
-      this.unRenderElement();
+      ReactDOM.unmountComponentAtNode(this);
     }
 
     renderElement() {
-      ReactDOM.render(toVdom(this, Component), this);
-    }
+      const attrs = {
+        ...convertAttributes(this, attributes),
+        ...convertEvents(this, events),
+      };
 
-    unRenderElement() {
-      ReactDOM.unmountComponentAtNode(this);
+      ReactDOM.render(
+        React.createElement(
+          ReactComponent,
+          attrs,
+          // FIXME: orig children cannot change later by external (non React)
+          // DOM manipulation
+          convertChildren(this._origInnerHTML),
+        ),
+        this,
+      );
     }
   }
 
-	return document.registerElement(tagName, WebReactComponent);
+  return document.registerElement(tagName, WebReactComponent);
 }
