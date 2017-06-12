@@ -3,7 +3,7 @@ module.exports = {
 	output: {
     path: __dirname + "/dist",
 		filename: "bundle.js",
-		library: 'WRC',
+		library: 'WebReactComponents',
 		libraryTarget: "umd"
 	},
 	module: {

@@ -37,7 +37,7 @@ const convertChildren = innerHTML =>
     ? <div dangerouslySetInnerHTML={{__html: innerHTML }} />
     : null;
 
-export default function register(ReactComponent, tagName) {
+export function register(ReactComponent, tagName) {
   class WebReactComponent extends HTMLElement {
     attachedCallback() {
       this._origInnerHTML = this.innerHTML;
