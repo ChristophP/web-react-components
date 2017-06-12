@@ -3,16 +3,25 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.8/react-with-addons.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.8/react-dom.js"></script>
 
+  <!-- compiled JS -->
+  <script src="/bundle.js"></script>
 </head>
 <body>
   <h1>Web React Components</h1>
-  <div id="root"></div>
 
-  <!-- compiled JS -->
-  <script src="/bundle.js"></script>
+  <!-- render the custom element -->
+  <my-component
+    id="myComponent"
+    name="Peter"
+    age="45"
+    fruits='["apple","orange","banana"]'
+    onClickButton="console.log('attribute callback `onclickbutton` triggered')"
+  >
+    I'm a <em>native</em> child
+  </my-component>
 
   <script>
-    // bootstrap element
+    // create react component
     const h = React.createElement;
     const style = { backgroundColor: '#eee', padding: '1em' };
     const MyComponent = ({
@@ -38,20 +47,8 @@
       attributes: ['name', 'age', 'fruits'],
       events: ['onClickButton', 'fooBar'],
     });
-  </script>
 
-  <!-- render the custom element -->
-  <my-component
-    id="myComponent"
-    name="Peter"
-    age="45"
-    fruits='["apple","orange","banana"]'
-    onClickButton="console.log('attribute callback `onclickbutton` triggered')"
-  >
-    I'm a <em>native</em> child
-  </my-component>
-
-  <script>
+    // add some DOM Level 3 event handlers
     const myComponent = document.getElementById('myComponent');
     myComponent.addEventListener('onClickButton', (e) => {
       console.log('Event `onClickButton` triggered', e)

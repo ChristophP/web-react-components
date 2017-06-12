@@ -66,7 +66,7 @@ export function register(ReactComponent, tagName, { attributes, events } = {}) {
     }
 
     renderElement() {
-      const attrs = {
+      const props = {
         ...convertAttributes(this, attributes),
         ...convertEvents(this, events),
       };
@@ -74,7 +74,7 @@ export function register(ReactComponent, tagName, { attributes, events } = {}) {
       ReactDOM.render(
         React.createElement(
           ReactComponent,
-          attrs,
+          props,
           // FIXME: orig children cannot change later by external (non React)
           // DOM manipulation
           convertChildren(this._origInnerHTML),
