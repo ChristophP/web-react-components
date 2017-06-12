@@ -20,7 +20,10 @@ const convertAttributes = (node, attributeNames) =>
   attributeNames.reduce((obj, name) => {
     const value = node.getAttribute(name.toLowerCase());
 
-    return ({ ...obj, [name]: parseAttribute(value) });
+    // ignore missing attributes
+    if (value === null) return obj;
+
+    return { ...obj, [name]: parseAttribute(value) };
   }, {});
 
 const convertEvents = (node, eventNames) =>
