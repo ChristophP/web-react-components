@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
   entry: "./src/index.js",
   output: {
@@ -20,5 +22,9 @@ module.exports = {
   externals: {
     react: "React",
     'react-dom': "ReactDOM"
+  },
+  devServer: {
+    contentBase: path.join(__dirname, 'dev-assets'),
+    port: 8080
   }
 };

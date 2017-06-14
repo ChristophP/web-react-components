@@ -15,7 +15,7 @@
     name="Peter"
     age="45"
     fruits='["apple","orange","banana"]'
-    onClickButton="console.log('attribute callback `onclickbutton` triggered')"
+    onClickButton="console.log('attribute callback `onclickbutton` triggered', this)"
   >
     I'm a <em>native</em> child
   </my-component>
@@ -30,11 +30,11 @@
       age = 'unknown',
       fruits = [],
       onClickButton = Function.prototype,
-      fooBar = Function.prototype,
+      onHoverName = Function.prototype,
     } = {}) =>
       h('div', null,
-        h('h1', { onMouseOver: () => fooBar('baz') }, name),
-        h('button', { onClick: () => onClickButton({ num: 1 }) }, 'Click me!'),
+        h('h1', { onMouseOver: () => onHoverName(name) }, name),
+        h('button', { onClick: onClickButton }, 'Click me!'),
         h('p', null, 'Age: ' + age),
         children && h('div', { style }, children),
         h('ul', null, fruits.map((fruit, key) =>
@@ -45,7 +45,7 @@
     // register react component as custom element
     WebReactComponents.register(MyComponent, 'my-component', {
       attributes: ['name', 'age', 'fruits'],
-      events: ['onClickButton', 'fooBar'],
+      events: ['onClickButton', 'onHoverName'],
     });
 
     // add some DOM Level 3 event handlers
@@ -53,8 +53,9 @@
     myComponent.addEventListener('onClickButton', (e) => {
       console.log('Event `onClickButton` triggered', e)
     });
-    myComponent.addEventListener('fooBar', (e) => {
-      console.log('Event `fooBar` triggered', e)
+    myComponent.addEventListener('onHoverName', (e) => {
+      console.log('Event `onHoverName` triggered', e)
     });
+    myComponent.name = 'Fritz';
   </script>
 </body>

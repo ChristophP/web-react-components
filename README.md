@@ -19,7 +19,7 @@ This should be a web components wrapper for react components.
 
 You can see an example [here](https://github.com/ChristophP/web-react-components/blob/master/dev-assets/index.html).
 You can also clone the repo and run `npm i` and `npm start`.
-Open your browser at `http://localhost:8080/dev-assets/index.html`
+Open your browser at `http://localhost:8080`
 
 ## Attribute parsing:
 
