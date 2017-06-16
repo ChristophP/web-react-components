@@ -54,7 +54,12 @@ const convertChildren = innerHTML =>
 
 export function register(ReactComponent, tagName, { attributes, events } = {}) {
   class WebReactComponent extends HTMLElement {
-    attachedCallback() {
+    constructor() {
+      super();
+    }
+
+    connectedCallback() {
+      console.log('I AM ATTACHED')
       this._origInnerHTML = this.innerHTML;
       this.renderElement();
     }
@@ -63,7 +68,7 @@ export function register(ReactComponent, tagName, { attributes, events } = {}) {
       this.renderElement();
     }
 
-    detachedCallback() {
+    disconnectedCallback() {
       ReactDOM.unmountComponentAtNode(this);
     }
 
@@ -127,5 +132,5 @@ export function register(ReactComponent, tagName, { attributes, events } = {}) {
     })
   });
 
-  return document.registerElement(tagName, WebReactComponent);
+  return customElements.define(tagName, WebReactComponent);
 }

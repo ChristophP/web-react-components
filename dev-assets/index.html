@@ -1,5 +1,10 @@
 <head>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/document-register-element/1.5.0/document-register-element.js"></script>
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/document-register-element/1.5.0/document-register-element.js"></script>-->
+  <!-- Use this adapter for classes transform instead of babel plugin "transform-custom-elements-classes
+    because th plugin needs Reflect.construct, which is not there in IE.
+    " -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.1/custom-elements-es5-adapter.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.1/webcomponents-sd-ce.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.8/react-with-addons.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.8/react-dom.js"></script>
 
@@ -39,7 +44,7 @@
         children && h('div', { style }, children),
         h('ul', null, fruits.map((fruit, key) =>
           h('li', { key }, fruit))
-        ),
+        )
       );
 
     // register react component as custom element
