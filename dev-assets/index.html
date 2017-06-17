@@ -29,23 +29,23 @@
     // create react component
     const h = React.createElement;
     const style = { backgroundColor: '#eee', padding: '1em' };
-    const MyComponent = ({
-      name,
-      children,
-      age = 'unknown',
-      fruits = [],
-      onClickButton = Function.prototype,
-      onHoverName = Function.prototype,
-    } = {}) =>
-      h('div', null,
-        h('h1', { onMouseOver: () => onHoverName(name) }, name),
+    function MyComponent(props) {
+      const name = props.name;
+      const children = props.children;
+      const age = props.age || 'unknown';
+      const fruits = props.fruits || [];
+      const onClickButton = props.onClickButton || Function.prototype;
+      const onHoverName = props.onHoverName || Function.prototype;
+      return h('div', null,
+        h('h1', { onMouseOver: function() { return onHoverName(name); }  }, name),
         h('button', { onClick: onClickButton }, 'Click me!'),
         h('p', null, 'Age: ' + age),
         children && h('div', { style }, children),
-        h('ul', null, fruits.map((fruit, key) =>
-          h('li', { key }, fruit))
-        )
+        h('ul', null, fruits.map(function(fruit, key) {
+          return h('li', { key }, fruit)
+        }))
       );
+    }
 
     // register react component as custom element
     WebReactComponents.register(MyComponent, 'my-component', {
@@ -55,10 +55,10 @@
 
     // add some DOM Level 3 event handlers
     const myComponent = document.getElementById('myComponent');
-    myComponent.addEventListener('onClickButton', (e) => {
+    myComponent.addEventListener('onClickButton', function(e) {
       console.log('Event `onClickButton` triggered', e)
     });
-    myComponent.addEventListener('onHoverName', (e) => {
+    myComponent.addEventListener('onHoverName', function(e) {
       console.log('Event `onHoverName` triggered', e)
     });
     myComponent.name = 'Fritz';
