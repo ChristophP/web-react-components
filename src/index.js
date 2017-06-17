@@ -41,7 +41,7 @@ const mapEventsToProps = (node, eventNames) =>
 
         // call event handler if defined
         if (typeof value === 'function') {
-          value.call(node, domEvent);
+          value.call(node, domEvent, ...origArgs);
         }
       },
     });
