@@ -1,5 +1,11 @@
 <head>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/document-register-element/1.5.0/document-register-element.js"></script>
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/document-register-element/1.5.0/document-register-element.js"></script>-->
+  <!-- Use this adapter for classes transform instead of babel plugin "transform-custom-elements-classes
+    because th plugin needs Reflect.construct, which is not there in IE.
+    " -->
+  <script src="//cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch,es6,Array.prototype.includes"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.1/custom-elements-es5-adapter.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.1/webcomponents-sd-ce.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.8/react-with-addons.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.8/react-dom.js"></script>
 
@@ -24,23 +30,23 @@
     // create react component
     const h = React.createElement;
     const style = { backgroundColor: '#eee', padding: '1em' };
-    const MyComponent = ({
-      name,
-      children,
-      age = 'unknown',
-      fruits = [],
-      onClickButton = Function.prototype,
-      onHoverName = Function.prototype,
-    } = {}) =>
-      h('div', null,
-        h('h1', { onMouseOver: () => onHoverName(name) }, name),
+    function MyComponent(props) {
+      const name = props.name;
+      const children = props.children;
+      const age = props.age || 'unknown';
+      const fruits = props.fruits || [];
+      const onClickButton = props.onClickButton || Function.prototype;
+      const onHoverName = props.onHoverName || Function.prototype;
+      return h('div', null,
+        h('h1', { onMouseOver: function() { return onHoverName(name); }  }, name),
         h('button', { onClick: onClickButton }, 'Click me!'),
         h('p', null, 'Age: ' + age),
-        children && h('div', { style }, children),
-        h('ul', null, fruits.map((fruit, key) =>
-          h('li', { key }, fruit))
-        ),
+        children && h('div', { style: style }, children),
+        h('ul', null, fruits.map(function(fruit, key) {
+          return h('li', { key: key }, fruit)
+        }))
       );
+    }
 
     // register react component as custom element
     WebReactComponents.register(MyComponent, 'my-component', {
@@ -49,13 +55,14 @@
     });
 
     // add some DOM Level 3 event handlers
-    const myComponent = document.getElementById('myComponent');
-    myComponent.addEventListener('onClickButton', (e) => {
+    const c = document.getElementById('myComponent');
+    c.addEventListener('onClickButton', function(e) {
       console.log('Event `onClickButton` triggered', e)
     });
-    myComponent.addEventListener('onHoverName', (e) => {
+    c.addEventListener('onHoverName', function(e) {
       console.log('Event `onHoverName` triggered', e)
     });
-    myComponent.name = 'Fritz';
+    c.name = 'Fritz';
+    c.innerHTML = 'Overwritten with <em>innerHTML</em> w00t';
   </script>
 </body>

@@ -17,12 +17,12 @@ const parseAttribute = (value) => {
 
 const mapAttributesToProps = (node, attributeNames) =>
   attributeNames.reduce((obj, name) => {
-    // accessing node properties instead of node attributes here
+    // accessing properties instead of attributes here
     // (autom. attribute parsing)
     const value = node[name];
 
-    // ignore missing node properties
-    if (value === null) return obj;
+    // ignore missing properties
+    if (typeof value === 'undefined') return obj;
 
     return { ...obj, [name]: value };
   }, {});
@@ -33,29 +33,32 @@ const mapEventsToProps = (node, eventNames) =>
 
     return ({
       ...obj,
-      [name](data) {
+      [name](...origArgs) {
         // dispatch DOM event
         const domEvent = new Event(name, { bubbles: true });
-        domEvent.data = data;
+        domEvent.origArgs = origArgs; // store original arguments from handler
         node.dispatchEvent(domEvent);
 
         // call event handler if defined
         if (typeof value === 'function') {
-          value.call(node, domEvent);
+          value.call(node, domEvent, ...origArgs);
         }
       },
     });
   }, {});
 
-const convertChildren = innerHTML =>
-  innerHTML.trim() !== ''
-    ? <div dangerouslySetInnerHTML={{__html: innerHTML }} />
-    : null;
-
 export function register(ReactComponent, tagName, { attributes, events } = {}) {
   class WebReactComponent extends HTMLElement {
-    attachedCallback() {
-      this._origInnerHTML = this.innerHTML;
+    static get observedAttributes() {
+      return [...attributes, ...events];
+    }
+
+    constructor() {
+      super();
+      this.attachShadow({ mode: 'open' });
+    }
+
+    connectedCallback() {
       this.renderElement();
     }
 
@@ -63,8 +66,8 @@ export function register(ReactComponent, tagName, { attributes, events } = {}) {
       this.renderElement();
     }
 
-    detachedCallback() {
-      ReactDOM.unmountComponentAtNode(this);
+    disconnectedCallback() {
+      ReactDOM.unmountComponentAtNode(this.shadowRoot);
     }
 
     renderElement() {
@@ -74,15 +77,8 @@ export function register(ReactComponent, tagName, { attributes, events } = {}) {
       };
 
       ReactDOM.render(
-        React.createElement(
-          ReactComponent,
-          props,
-
-          // FIXME: orig children cannot change later by external (non React)
-          // DOM manipulation
-          convertChildren(this._origInnerHTML),
-        ),
-        this,
+        React.createElement(ReactComponent, props, <slot></slot>),
+        this.shadowRoot
       );
     }
   }
@@ -127,5 +123,5 @@ export function register(ReactComponent, tagName, { attributes, events } = {}) {
     })
   });
 
-  return document.registerElement(tagName, WebReactComponent);
+  return customElements.define(tagName, WebReactComponent);
 }
