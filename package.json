@@ -1,13 +1,21 @@
 {
   "name": "web-react-components",
-  "version": "1.0.0",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/ChristophP/web-react-components"
+  },
+  "version": "0.1.0",
   "description": "A web component wrapper around React Components",
-  "main": "index.js",
+  "main": "dist/bundle.js",
   "scripts": {
     "start": "webpack-dev-server",
     "build": "webpack",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "npm run build"
   },
+  "files": [
+    "dist/bundle.js"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
