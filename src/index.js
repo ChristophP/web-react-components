@@ -17,12 +17,12 @@ const parseAttribute = (value) => {
 
 const mapAttributesToProps = (node, attributeNames) =>
   attributeNames.reduce((obj, name) => {
-    // accessing node properties instead of node attributes here
+    // accessing properties instead of attributes here
     // (autom. attribute parsing)
     const value = node[name];
 
-    // ignore missing node properties
-    if (value === null) return obj;
+    // ignore missing properties
+    if (typeof value === 'undefined') return obj;
 
     return { ...obj, [name]: value };
   }, {});
@@ -55,7 +55,7 @@ export function register(ReactComponent, tagName, { attributes, events } = {}) {
 
     constructor() {
       super();
-      this.attachShadow({mode: 'open'});
+      this.attachShadow({ mode: 'open' });
     }
 
     connectedCallback() {
@@ -77,12 +77,8 @@ export function register(ReactComponent, tagName, { attributes, events } = {}) {
       };
 
       ReactDOM.render(
-        React.createElement(
-          ReactComponent,
-          props,
-          <slot></slot>
-        ),
-        this.shadowRoot,
+        React.createElement(ReactComponent, props, <slot></slot>),
+        this.shadowRoot
       );
     }
   }
