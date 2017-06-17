@@ -55,20 +55,19 @@ export function register(ReactComponent, tagName, { attributes, events } = {}) {
 
     constructor() {
       super();
-      this._shadowRoot = this.attachShadow({mode: 'open'});
-      this.renderElement();
+      this.attachShadow({mode: 'open'});
     }
 
-    // connectedCallback() {
-    //   this.renderElement();
-    // }
+    connectedCallback() {
+      this.renderElement();
+    }
 
     attributeChangedCallback() {
       this.renderElement();
     }
 
     disconnectedCallback() {
-      ReactDOM.unmountComponentAtNode(this._shadowRoot);
+      ReactDOM.unmountComponentAtNode(this.shadowRoot);
     }
 
     renderElement() {
@@ -83,7 +82,7 @@ export function register(ReactComponent, tagName, { attributes, events } = {}) {
           props,
           <slot></slot>
         ),
-        this._shadowRoot,
+        this.shadowRoot,
       );
     }
   }
