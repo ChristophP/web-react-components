@@ -47,29 +47,28 @@ const mapEventsToProps = (node, eventNames) =>
     });
   }, {});
 
-const convertChildren = innerHTML =>
-  innerHTML.trim() !== ''
-    ? <div dangerouslySetInnerHTML={{__html: innerHTML }} />
-    : null;
-
 export function register(ReactComponent, tagName, { attributes, events } = {}) {
   class WebReactComponent extends HTMLElement {
-    constructor() {
-      super();
+    static get observedAttributes() {
+      return [...attributes, ...events];
     }
 
-    connectedCallback() {
-      console.log('I AM ATTACHED')
-      this._origInnerHTML = this.innerHTML;
+    constructor() {
+      super();
+      this._shadowRoot = this.attachShadow({mode: 'open'});
       this.renderElement();
     }
+
+    // connectedCallback() {
+    //   this.renderElement();
+    // }
 
     attributeChangedCallback() {
       this.renderElement();
     }
 
     disconnectedCallback() {
-      ReactDOM.unmountComponentAtNode(this);
+      ReactDOM.unmountComponentAtNode(this._shadowRoot);
     }
 
     renderElement() {
@@ -82,12 +81,9 @@ export function register(ReactComponent, tagName, { attributes, events } = {}) {
         React.createElement(
           ReactComponent,
           props,
-
-          // FIXME: orig children cannot change later by external (non React)
-          // DOM manipulation
-          convertChildren(this._origInnerHTML),
+          <slot></slot>
         ),
-        this,
+        this._shadowRoot,
       );
     }
   }

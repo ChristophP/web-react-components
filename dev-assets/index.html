@@ -54,13 +54,14 @@
     });
 
     // add some DOM Level 3 event handlers
-    const myComponent = document.getElementById('myComponent');
-    myComponent.addEventListener('onClickButton', function(e) {
+    const c = document.getElementById('myComponent');
+    c.addEventListener('onClickButton', function(e) {
       console.log('Event `onClickButton` triggered', e)
     });
-    myComponent.addEventListener('onHoverName', function(e) {
+    c.addEventListener('onHoverName', function(e) {
       console.log('Event `onHoverName` triggered', e)
     });
-    myComponent.name = 'Fritz';
+    c.name = 'Fritz';
+    c.innerHTML = 'Overwritten with <em>innerHTML</em> w00t';
   </script>
 </body>
