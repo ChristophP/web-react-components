@@ -3,6 +3,7 @@
   <!-- Use this adapter for classes transform instead of babel plugin "transform-custom-elements-classes
     because th plugin needs Reflect.construct, which is not there in IE.
     " -->
+  <script src="//cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch,es6,Array.prototype.includes"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.1/custom-elements-es5-adapter.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.1/webcomponents-sd-ce.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.8/react-with-addons.js"></script>
@@ -40,9 +41,9 @@
         h('h1', { onMouseOver: function() { return onHoverName(name); }  }, name),
         h('button', { onClick: onClickButton }, 'Click me!'),
         h('p', null, 'Age: ' + age),
-        children && h('div', { style }, children),
+        children && h('div', { style: style }, children),
         h('ul', null, fruits.map(function(fruit, key) {
-          return h('li', { key }, fruit)
+          return h('li', { key: key }, fruit)
         }))
       );
     }
