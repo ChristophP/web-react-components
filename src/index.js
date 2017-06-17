@@ -33,10 +33,10 @@ const mapEventsToProps = (node, eventNames) =>
 
     return ({
       ...obj,
-      [name](data) {
+      [name](...origArgs) {
         // dispatch DOM event
         const domEvent = new Event(name, { bubbles: true });
-        domEvent.data = data;
+        domEvent.origArgs = origArgs; // store original arguments from handler
         node.dispatchEvent(domEvent);
 
         // call event handler if defined
