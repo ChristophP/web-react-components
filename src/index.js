@@ -1,6 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+const bool = 'bool';
+const number = 'number';
+const string = 'string';
+const json = 'json';
+const event = 'event';
+
+const Types = { bool, number, string, json, event };
+
 const mapAttributeToProp = (node, name) => node[name];
 
 const mapEventToProp = (node, name) => {
@@ -24,7 +32,7 @@ const mapEventToProp = (node, name) => {
 const mapToProps = (node, mapping) =>
   Object.keys(mapping).reduce((props, name) => {
     const typeOrSerDes = mapping[name];
-    const mapFunc = (typeOrSerDes === Function)
+    const mapFunc = (typeOrSerDes === Types.event)
       ? mapEventToProp
       : mapAttributeToProp;
     const value = mapFunc(node, name);
@@ -37,7 +45,7 @@ const mapToPropertyDescriptor = (
   typeOrSerDes,
   onAfterSet = Function.prototype,
 ) => {
-  if (typeOrSerDes === Function) {
+  if (typeOrSerDes === Types.event) {
     let eventHandler;
 
     return {
@@ -61,7 +69,7 @@ const mapToPropertyDescriptor = (
         onAfterSet.call(this);
       }
     };
-  } else if (typeOrSerDes === Boolean) {
+  } else if (typeOrSerDes === Types.bool) {
     return {
       get: function() {
         return this.hasAttribute(name);
@@ -80,9 +88,9 @@ const mapToPropertyDescriptor = (
       get: function() {
         const value = this.getAttribute(name);
 
-        if (typeOrSerDes === Number) {
+        if (typeOrSerDes === Types.number) {
           return Number(value);
-        } else if (typeOrSerDes === JSON) {
+        } else if (typeOrSerDes === Types.json) {
           return JSON.parse(value);
         }
 
@@ -92,7 +100,7 @@ const mapToPropertyDescriptor = (
       },
       set: function(value) {
         const attributeValue = (() => {
-          if (typeOrSerDes === JSON) {
+          if (typeOrSerDes === Types.json) {
             return JSON.stringify(value);
           }
 
@@ -120,7 +128,7 @@ const definePropertiesFor = (WebComponent, mapping, onAfterSet) => {
   });
 };
 
-export function register(ReactComponent, tagName, mapping = {}) {
+function register(ReactComponent, tagName, mapping = {}) {
   const attributeNames = Object.keys(mapping);
   const render = function() {
     const props = mapToProps(this, mapping);
@@ -160,3 +168,18 @@ export function register(ReactComponent, tagName, mapping = {}) {
 
   return customElements.define(tagName, WebReactComponent);
 }
+
+// register is default export
+export default register;
+
+// additionally everything is exported as named export for convenience
+export {
+  register,
+  Types,
+  bool,
+  number,
+  string,
+  json,
+  event,
+};
+

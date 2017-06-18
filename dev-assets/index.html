@@ -62,17 +62,18 @@
     }
 
     // register react component as custom element
-    WebReactComponents.register(MyComponent, 'my-component', {
-      name: String,
-      age: Number,
+    const WRC = WebReactComponents;
+    WRC.register(MyComponent, 'my-component', {
+      name: WRC.Types.string,
+      age: WRC.Types.number,
       fruits: {
         serialize: (arr) => arr ? arr.join(',') : '',
         deserialize: (str) => str ? str.split(',') : [],
       },
-      config: JSON,
-      isActive: Boolean,
-      onClickButton: Function,
-      onHoverName: Function,
+      config: WRC.Types.json,
+      isActive: WRC.Types.bool,
+      onClickButton: WRC.Types.event,
+      onHoverName: WRC.Types.event,
     });
 
     // add some DOM Level 3 event handlers
