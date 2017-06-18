@@ -122,6 +122,14 @@ const definePropertiesFor = (WebComponent, mapping, onAfterSet) => {
 
 export function register(ReactComponent, tagName, mapping = {}) {
   const attributeNames = Object.keys(mapping);
+  const render = function() {
+    const props = mapToProps(this, mapping);
+
+    ReactDOM.render(
+      React.createElement(ReactComponent, props, <slot></slot>),
+      this.shadowRoot
+    );
+  };
 
   class WebReactComponent extends HTMLElement {
     static get observedAttributes() {
@@ -134,32 +142,21 @@ export function register(ReactComponent, tagName, mapping = {}) {
     }
 
     connectedCallback() {
-      this.renderElement();
+      render.call(this);
     }
 
     attributeChangedCallback() {
-      this.renderElement();
+      render.call(this);
     }
 
     disconnectedCallback() {
       ReactDOM.unmountComponentAtNode(this.shadowRoot);
     }
-
-    renderElement() {
-      const props = mapToProps(this, mapping);
-
-      ReactDOM.render(
-        React.createElement(ReactComponent, props, <slot></slot>),
-        this.shadowRoot
-      );
-    }
   }
 
   // dynamically create property getters and setters for attributes
   // and event handlers
-  definePropertiesFor(WebReactComponent, mapping, function() {
-    this.renderElement(); // context (this) is WebComponent instance
-  });
+  definePropertiesFor(WebReactComponent, mapping, render);
 
   return customElements.define(tagName, WebReactComponent);
 }
