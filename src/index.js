@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import CustomEvent from './custom-event-ponyfill';
 
 const Types = {
   bool: 'bool',
@@ -18,13 +19,16 @@ const mapEventToProp = (node, name) => {
 
   return (...origArgs) => {
     // dispatch DOM event
-    const domEvent = new Event(name, { bubbles: true });
-    domEvent.origArgs = origArgs; // store original arguments from handler
+    const domEvent = new CustomEvent(name, {
+      bubbles: true,
+      cancelable: true,
+      detail: origArgs, // store original arguments from handler
+    });
     node.dispatchEvent(domEvent);
 
     // call event handler if defined
     if (typeof handler === 'function') {
-      handler.call(node, domEvent, ...origArgs);
+      handler.call(node, domEvent);
     }
   };
 };

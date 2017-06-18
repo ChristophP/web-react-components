@@ -88,5 +88,10 @@
     c.innerHTML = 'Overwritten with <em>innerHTML<' + '/em> w00t';
     c.fruits = ['strawberry', 'grape'];
     c.isActive = false;
+
+    // should bubble
+    document.addEventListener('onClickButton', function(e) {
+      console.log('Event `onClickButton` bubbled :-)', e)
+    });
   </script>
 </body>
