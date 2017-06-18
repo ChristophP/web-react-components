@@ -22,8 +22,14 @@ module.exports = {
     }]
   },
   externals: {
-    react: "React",
-    'react-dom': "ReactDOM"
+    react: {
+      commonjs: 'react',
+      root: 'React',
+    },
+    'react-dom': {
+      commonjs: 'react-dom',
+      root: 'ReactDOM',
+    }
   },
   devServer: {
     contentBase: path.join(__dirname, 'dev-assets'),
