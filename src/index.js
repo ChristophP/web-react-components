@@ -129,7 +129,7 @@ const definePropertiesFor = (WebComponent, mapping, onAfterSet) => {
 };
 
 function register(ReactComponent, tagName, mapping = {}) {
-  const attributeNames = Object.keys(mapping);
+  const attributeNames = Object.keys(mapping).map(name => name.toLowerCase());
   const render = function() {
     const props = mapToProps(this, mapping);
 
