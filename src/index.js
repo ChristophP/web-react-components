@@ -70,7 +70,7 @@ const mapToPropertyDescriptor = (
       },
       set: function(value) {
         eventHandler = (typeof value === 'function') ? value : null;
-        onAfterSet.call(this);
+        onAfterSet(this);
       }
     };
   } else if (typeOrSerDes === Types.bool) {
@@ -84,7 +84,7 @@ const mapToPropertyDescriptor = (
         } else {
           this.removeAttribute(name);
         }
-        onAfterSet.call(this);
+        onAfterSet(this);
       }
     };
   } else {
@@ -114,7 +114,7 @@ const mapToPropertyDescriptor = (
         })();
 
         this.setAttribute(name, attributeValue);
-        onAfterSet.call(this);
+        onAfterSet(this);
       }
     };
   }
@@ -134,12 +134,14 @@ const definePropertiesFor = (WebComponent, mapping, onAfterSet) => {
 
 function register(ReactComponent, tagName, mapping = {}) {
   const attributeNames = Object.keys(mapping).map(name => name.toLowerCase());
-  const render = function() {
-    const props = mapToProps(this, mapping);
+
+  // render should be private
+  const render = (component) => {
+    const props = mapToProps(component, mapping);
 
     ReactDOM.render(
       React.createElement(ReactComponent, props, <slot></slot>),
-      this.shadowRoot
+      component.shadowRoot
     );
   };
 
@@ -154,11 +156,11 @@ function register(ReactComponent, tagName, mapping = {}) {
     }
 
     connectedCallback() {
-      render.call(this);
+      render(this);
     }
 
     attributeChangedCallback() {
-      render.call(this);
+      render(this);
     }
 
     disconnectedCallback() {
