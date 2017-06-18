@@ -14,7 +14,7 @@ const mapAttributeToProp = (node, name) => node[name];
 const mapEventToProp = (node, name) => {
   // accessing properties instead of attributes here
   // (autom. attribute parsing)
-  const value = node[name];
+  const handler = node[name];
 
   return (...origArgs) => {
     // dispatch DOM event
@@ -23,8 +23,8 @@ const mapEventToProp = (node, name) => {
     node.dispatchEvent(domEvent);
 
     // call event handler if defined
-    if (typeof value === 'function') {
-      value.call(node, domEvent, ...origArgs);
+    if (typeof handler === 'function') {
+      handler.call(node, domEvent, ...origArgs);
     }
   };
 };
