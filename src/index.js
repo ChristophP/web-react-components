@@ -1,56 +1,131 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-const parseAttribute = (value) => {
-  try {
-    // try to parse attribute values as JSON, e.g.
-    // - "1" -> 1
-    // - "true" -> true
-    // - "null" -> null
-    // - "[1, null, \"foo\"]" -> [1, null, 'foo']
-    return JSON.parse(value);
-  } catch (err) {
-    // or just return the raw value as string
-    return value;
+const mapAttributeToProp = (node, name) => node[name];
+
+const mapEventToProp = (node, name) => {
+  // accessing properties instead of attributes here
+  // (autom. attribute parsing)
+  const value = node[name];
+
+  return (...origArgs) => {
+    // dispatch DOM event
+    const domEvent = new Event(name, { bubbles: true });
+    domEvent.origArgs = origArgs; // store original arguments from handler
+    node.dispatchEvent(domEvent);
+
+    // call event handler if defined
+    if (typeof value === 'function') {
+      value.call(node, domEvent, ...origArgs);
+    }
+  };
+};
+
+const mapToProps = (node, mapping) =>
+  Object.keys(mapping).reduce((props, name) => {
+    const typeOrSerDes = mapping[name];
+    const mapFunc = (typeOrSerDes === Function)
+      ? mapEventToProp
+      : mapAttributeToProp;
+    const value = mapFunc(node, name);
+
+    return { ...props, [name]: value };
+  }, {});
+
+const mapToPropertyDescriptor = (
+  name,
+  typeOrSerDes,
+  onAfterSet = Function.prototype,
+) => {
+  if (typeOrSerDes === Function) {
+    let eventHandler;
+
+    return {
+      get: function() {
+        // return event handler assigned via propery if available
+        if (typeof eventHandler !== 'undefined') return eventHandler;
+
+        // return null if event handler attribute wasn't defined
+        const value = this.getAttribute(name);
+        if (value === null) return null;
+
+        // try to return a function representation of the event handler attr.
+        try {
+          return new Function(value);
+        } catch (err) {
+          return null;
+        };
+      },
+      set: function(value) {
+        eventHandler = (typeof value === 'function') ? value : null;
+        onAfterSet.call(this);
+      }
+    };
+  } else if (typeOrSerDes === Boolean) {
+    return {
+      get: function() {
+        return this.hasAttribute(name);
+      },
+      set: function(value) {
+        if (value) {
+          this.setAttribute(name, '');
+        } else {
+          this.removeAttribute(name);
+        }
+        onAfterSet.call(this);
+      }
+    };
+  } else {
+    return {
+      get: function() {
+        const value = this.getAttribute(name);
+
+        if (typeOrSerDes === Number) {
+          return Number(value);
+        } else if (typeOrSerDes === JSON) {
+          return JSON.parse(value);
+        }
+
+        return (typeof typeOrSerDes.deserialize === 'function')
+          ? typeOrSerDes.deserialize(value)
+          : value;
+      },
+      set: function(value) {
+        const attributeValue = (() => {
+          if (typeOrSerDes === JSON) {
+            return JSON.stringify(value);
+          }
+
+          return (typeof typeOrSerDes.serialize === 'function')
+            ? typeOrSerDes.serialize(value)
+            : value.toString();
+        })();
+
+        this.setAttribute(name, attributeValue);
+        onAfterSet.call(this);
+      }
+    };
   }
 };
 
-const mapAttributesToProps = (node, attributeNames) =>
-  attributeNames.reduce((obj, name) => {
-    // accessing properties instead of attributes here
-    // (autom. attribute parsing)
-    const value = node[name];
+const definePropertiesFor = (WebComponent, mapping, onAfterSet) => {
+  Object.keys(mapping).forEach((name) => {
+    const typeOrSerDes = mapping[name];
 
-    // ignore missing properties
-    if (typeof value === 'undefined') return obj;
+    Object.defineProperty(
+      WebComponent.prototype,
+      name,
+      mapToPropertyDescriptor(name, typeOrSerDes, onAfterSet)
+    );
+  });
+};
 
-    return { ...obj, [name]: value };
-  }, {});
+export function register(ReactComponent, tagName, mapping = {}) {
+  const attributeNames = Object.keys(mapping);
 
-const mapEventsToProps = (node, eventNames) =>
-  eventNames.reduce((obj, name) => {
-    const value = node[name];
-
-    return ({
-      ...obj,
-      [name](...origArgs) {
-        // dispatch DOM event
-        const domEvent = new Event(name, { bubbles: true });
-        domEvent.origArgs = origArgs; // store original arguments from handler
-        node.dispatchEvent(domEvent);
-
-        // call event handler if defined
-        if (typeof value === 'function') {
-          value.call(node, domEvent, ...origArgs);
-        }
-      },
-    });
-  }, {});
-
-export function register(ReactComponent, tagName, { attributes, events } = {}) {
   class WebReactComponent extends HTMLElement {
     static get observedAttributes() {
-      return [...attributes, ...events];
+      return attributeNames;
     }
 
     constructor() {
@@ -71,10 +146,7 @@ export function register(ReactComponent, tagName, { attributes, events } = {}) {
     }
 
     renderElement() {
-      const props = {
-        ...mapAttributesToProps(this, attributes),
-        ...mapEventsToProps(this, events),
-      };
+      const props = mapToProps(this, mapping);
 
       ReactDOM.render(
         React.createElement(ReactComponent, props, <slot></slot>),
@@ -84,43 +156,9 @@ export function register(ReactComponent, tagName, { attributes, events } = {}) {
   }
 
   // dynamically create property getters and setters for attributes
-  attributes.forEach(propName =>
-    Object.defineProperty(WebReactComponent.prototype, propName, {
-      get: function() {
-        const value = this.getAttribute(propName);
-        return parseAttribute(value);
-      },
-      set: function(value) {
-        this.setAttribute(propName, value);
-      }
-    })
-  );
-
-  // dynamically create property getters and setters for event handlers
-  events.forEach(propName => {
-    let eventHandler;
-
-    Object.defineProperty(WebReactComponent.prototype, propName, {
-      get: function() {
-        // return event handler assigned via propery if available
-        if (typeof eventHandler !== 'undefined') return eventHandler;
-
-        // return null if event handler attribute wasn't defined
-        const value = this.getAttribute(propName);
-        if (value === null) return null;
-
-        // try to return a function representation of the event handler attr.
-        try {
-          return new Function(value);
-        } catch (err) {
-          return null;
-        };
-      },
-      set: function(value) {
-        eventHandler = (typeof value === 'function') ? value : null;
-        this.renderElement(); // trigger manually because no attr. was changed
-      }
-    })
+  // and event handlers
+  definePropertiesFor(WebReactComponent, mapping, function() {
+    this.renderElement(); // context (this) is WebComponent instance
   });
 
   return customElements.define(tagName, WebReactComponent);
