@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-const bool = 'bool';
-const number = 'number';
-const string = 'string';
-const json = 'json';
-const event = 'event';
-
-const Types = { bool, number, string, json, event };
+const Types = {
+  bool: 'bool',
+  number: 'number',
+  string: 'string',
+  json: 'json',
+  event: 'event',
+};
 
 const mapAttributeToProp = (node, name) => node[name];
 
@@ -169,17 +169,13 @@ function register(ReactComponent, tagName, mapping = {}) {
   return customElements.define(tagName, WebReactComponent);
 }
 
-// register is default export
-export default register;
+export default {
+  register,
+  Types,
+};
 
-// additionally everything is exported as named export for convenience
 export {
   register,
   Types,
-  bool,
-  number,
-  string,
-  json,
-  event,
 };
 
