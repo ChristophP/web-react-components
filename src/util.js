@@ -1,3 +1,5 @@
+// check if a propName corresponds to a handler convention,
+// starting with "on" and folowed by a capiltal letter
 export const isHandlerConvention = prop => /^on[A-Z]/.test(prop);
 
 // create an object from an array where the keys are the array items
