@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import CustomEvent from './custom-event-ponyfill';
+import { isHandlerConvention, objectFromArray, mapObject } from './util';
 
 const Types = {
   bool: 'bool',
@@ -33,16 +34,11 @@ const mapEventToProp = (node, name) => {
   };
 };
 
-const mapToProps = (node, mapping) =>
-  Object.keys(mapping).reduce((props, name) => {
-    const typeOrSerDes = mapping[name];
-    const mapFunc = (typeOrSerDes === Types.event)
-      ? mapEventToProp
-      : mapAttributeToProp;
-    const value = mapFunc(node, name);
-
-    return { ...props, [name]: value };
-  }, {});
+const mapToProps = (node, mapping) => {
+  const mapFunc = (typeOrSerDes, name) => (typeOrSerDes === Types.event) ?
+    mapEventToProp(node, name) : mapAttributeToProp(node, name);
+  return mapObject(mapFunc, mapping);
+};
 
 const mapToPropertyDescriptor = (
   name,
@@ -50,6 +46,7 @@ const mapToPropertyDescriptor = (
 ) => {
   // handlers
   if (typeOrSerDes === Types.event) {
+    let eventHandler;
     return {
       get() {
         // return event handler assigned via propery if available
@@ -67,7 +64,8 @@ const mapToPropertyDescriptor = (
         };
       },
       set(value) {
-        this[name] = (typeof value === 'function') ? value : null;
+        eventHandler = (typeof value === 'function') ? value : null;
+        this.attributeChangedCallback();
       }
     };
   }
@@ -81,10 +79,9 @@ const mapToPropertyDescriptor = (
       set(value) {
         if (value) {
           this.setAttribute(name, '');
-          return;
+        } else {
+          this.removeAttribute(name);
         }
-
-        this.removeAttribute(name);
       }
     };
   }
@@ -99,7 +96,11 @@ const mapToPropertyDescriptor = (
       }
 
       if (typeOrSerDes === Types.json) {
-        return JSON.parse(value);
+        try {
+          return JSON.parse(value);
+        } catch (e) {
+          return value; // original string as fallback
+        }
       }
 
       return (typeof typeOrSerDes.deserialize === 'function')
@@ -145,11 +146,9 @@ const definePropertiesFor = (WebComponent, mapping) => {
  */
 
 function register(ReactComponent, tagName, mappingArg = {}) {
+  const getType = name => isHandlerConvention(name) ? Types.event : Types.json;
   const mapping = Array.isArray(mappingArg) ?
-    mappingArg.reduce((obj, name) => {
-      const type = name.startsWith('on') ? Types.event : Types.json;
-      return { ...obj, [name]: type };
-    }, {}) : mappingArg;
+    objectFromArray(mappingArg, getType) : mappingArg;
 
   const attributeNames = Object.keys(mapping).map(name => name.toLowerCase());
 
