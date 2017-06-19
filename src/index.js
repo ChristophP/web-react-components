@@ -47,13 +47,11 @@ const mapToProps = (node, mapping) =>
 const mapToPropertyDescriptor = (
   name,
   typeOrSerDes,
-  onAfterSet = Function.prototype,
 ) => {
+  // handlers
   if (typeOrSerDes === Types.event) {
-    let eventHandler;
-
     return {
-      get: function() {
+      get() {
         // return event handler assigned via propery if available
         if (typeof eventHandler !== 'undefined') return eventHandler;
 
@@ -68,66 +66,70 @@ const mapToPropertyDescriptor = (
           return null;
         };
       },
-      set: function(value) {
-        eventHandler = (typeof value === 'function') ? value : null;
-        onAfterSet(this);
-      }
-    };
-  } else if (typeOrSerDes === Types.bool) {
-    return {
-      get: function() {
-        return this.hasAttribute(name);
-      },
-      set: function(value) {
-        if (value) {
-          this.setAttribute(name, '');
-        } else {
-          this.removeAttribute(name);
-        }
-        onAfterSet(this);
-      }
-    };
-  } else {
-    return {
-      get: function() {
-        const value = this.getAttribute(name);
-
-        if (typeOrSerDes === Types.number) {
-          return Number(value);
-        } else if (typeOrSerDes === Types.json) {
-          return JSON.parse(value);
-        }
-
-        return (typeof typeOrSerDes.deserialize === 'function')
-          ? typeOrSerDes.deserialize(value)
-          : value;
-      },
-      set: function(value) {
-        const attributeValue = (() => {
-          if (typeOrSerDes === Types.json) {
-            return JSON.stringify(value);
-          }
-
-          return (typeof typeOrSerDes.serialize === 'function')
-            ? typeOrSerDes.serialize(value)
-            : value.toString();
-        })();
-
-        this.setAttribute(name, attributeValue);
-        onAfterSet(this);
+      set(value) {
+        this[name] = (typeof value === 'function') ? value : null;
       }
     };
   }
+
+  // booleans
+  if (typeOrSerDes === Types.bool) {
+    return {
+      get() {
+        return this.hasAttribute(name);
+      },
+      set(value) {
+        if (value) {
+          this.setAttribute(name, '');
+          return;
+        }
+
+        this.removeAttribute(name);
+      }
+    };
+  }
+
+  // string, numbers, json
+  return {
+    get() {
+      const value = this.getAttribute(name);
+
+      if (typeOrSerDes === Types.number) {
+        return Number(value);
+      }
+
+      if (typeOrSerDes === Types.json) {
+        return JSON.parse(value);
+      }
+
+      return (typeof typeOrSerDes.deserialize === 'function')
+        ? typeOrSerDes.deserialize(value)
+        : value;
+    },
+    set(value) {
+      const attributeValue = (() => {
+        if (typeOrSerDes === Types.json) {
+          return JSON.stringify(value);
+        }
+
+        return (typeof typeOrSerDes.serialize === 'function')
+          ? typeOrSerDes.serialize(value)
+          : value.toString();
+      })();
+
+      this.setAttribute(name, attributeValue);
+    }
+  };
 };
 
-const definePropertiesFor = (WebComponent, mapping, onAfterSet) => {
+const definePropertiesFor = (WebComponent, mapping) => {
   Object.keys(mapping).forEach((name) => {
     const typeOrSerDes = mapping[name];
 
     Object.defineProperty(
       WebComponent.prototype,
       name,
-      mapToPropertyDescriptor(name, typeOrSerDes, onAfterSet)
+      mapToPropertyDescriptor(name, typeOrSerDes)
     );
   });
 };
@@ -170,7 +172,7 @@ function register(ReactComponent, tagName, mapping = {}) {
 
   // dynamically create property getters and setters for attributes
   // and event handlers
-  definePropertiesFor(WebReactComponent, mapping, render);
+  definePropertiesFor(WebReactComponent, mapping);
 
   return customElements.define(tagName, WebReactComponent);
 }
