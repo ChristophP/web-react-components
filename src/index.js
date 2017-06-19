@@ -1,112 +1,59 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import CustomEvent from './custom-event-ponyfill';
+import { isHandlerConvention, objectFromArray, mapObject } from './util';
 
-const parseAttribute = (value) => {
-  try {
-    // try to parse attribute values as JSON, e.g.
-    // - "1" -> 1
-    // - "true" -> true
-    // - "null" -> null
-    // - "[1, null, \"foo\"]" -> [1, null, 'foo']
-    return JSON.parse(value);
-  } catch (err) {
-    // or just return the raw value as string
-    return value;
-  }
+const Types = {
+  bool: 'bool',
+  number: 'number',
+  string: 'string',
+  json: 'json',
+  event: 'event',
 };
 
-const mapAttributesToProps = (node, attributeNames) =>
-  attributeNames.reduce((obj, name) => {
-    // accessing properties instead of attributes here
-    // (autom. attribute parsing)
-    const value = node[name];
+const mapAttributeToProp = (node, name) => node[name];
 
-    // ignore missing properties
-    if (typeof value === 'undefined') return obj;
+const mapEventToProp = (node, name) => {
+  // accessing properties instead of attributes here
+  // (autom. attribute parsing)
+  const handler = node[name];
 
-    return { ...obj, [name]: value };
-  }, {});
-
-const mapEventsToProps = (node, eventNames) =>
-  eventNames.reduce((obj, name) => {
-    const value = node[name];
-
-    return ({
-      ...obj,
-      [name](...origArgs) {
-        // dispatch DOM event
-        const domEvent = new Event(name, { bubbles: true });
-        domEvent.origArgs = origArgs; // store original arguments from handler
-        node.dispatchEvent(domEvent);
-
-        // call event handler if defined
-        if (typeof value === 'function') {
-          value.call(node, domEvent, ...origArgs);
-        }
-      },
+  return (...origArgs) => {
+    // dispatch DOM event
+    const domEvent = new CustomEvent(name, {
+      bubbles: true,
+      cancelable: true,
+      detail: origArgs, // store original arguments from handler
     });
-  }, {});
+    node.dispatchEvent(domEvent);
 
-export function register(ReactComponent, tagName, { attributes, events } = {}) {
-  class WebReactComponent extends HTMLElement {
-    static get observedAttributes() {
-      return [...attributes, ...events];
+    // call event handler if defined
+    if (typeof handler === 'function') {
+      handler.call(node, domEvent);
     }
+  };
+};
 
-    constructor() {
-      super();
-      this.attachShadow({ mode: 'open' });
-    }
+const mapToProps = (node, mapping) => {
+  const mapFunc = (typeOrSerDes, name) => (typeOrSerDes === Types.event) ?
+    mapEventToProp(node, name) : mapAttributeToProp(node, name);
+  return mapObject(mapFunc, mapping);
+};
 
-    connectedCallback() {
-      this.renderElement();
-    }
-
-    attributeChangedCallback() {
-      this.renderElement();
-    }
-
-    disconnectedCallback() {
-      ReactDOM.unmountComponentAtNode(this.shadowRoot);
-    }
-
-    renderElement() {
-      const props = {
-        ...mapAttributesToProps(this, attributes),
-        ...mapEventsToProps(this, events),
-      };
-
-      ReactDOM.render(
-        React.createElement(ReactComponent, props, <slot></slot>),
-        this.shadowRoot
-      );
-    }
-  }
-
-  // dynamically create property getters and setters for attributes
-  attributes.forEach(propName =>
-    Object.defineProperty(WebReactComponent.prototype, propName, {
-      get: function() {
-        const value = this.getAttribute(propName);
-        return parseAttribute(value);
-      },
-      set: function(value) {
-        this.setAttribute(propName, value);
-      }
-    })
-  );
-
-  // dynamically create property getters and setters for event handlers
-  events.forEach(propName => {
+const mapToPropertyDescriptor = (
+  name,
+  typeOrSerDes,
+) => {
+  // handlers
+  if (typeOrSerDes === Types.event) {
     let eventHandler;
-
-    Object.defineProperty(WebReactComponent.prototype, propName, {
-      get: function() {
+    return {
+      get() {
         // return event handler assigned via propery if available
         if (typeof eventHandler !== 'undefined') return eventHandler;
 
         // return null if event handler attribute wasn't defined
-        const value = this.getAttribute(propName);
+        const value = this.getAttribute(name);
         if (value === null) return null;
 
         // try to return a function representation of the event handler attr.
@@ -116,12 +63,142 @@ export function register(ReactComponent, tagName, { attributes, events } = {}) {
           return null;
         };
       },
-      set: function(value) {
+      set(value) {
         eventHandler = (typeof value === 'function') ? value : null;
-        this.renderElement(); // trigger manually because no attr. was changed
+        this.attributeChangedCallback();
       }
-    })
+    };
+  }
+
+  // booleans
+  if (typeOrSerDes === Types.bool) {
+    return {
+      get() {
+        return this.hasAttribute(name);
+      },
+      set(value) {
+        if (value) {
+          this.setAttribute(name, '');
+        } else {
+          this.removeAttribute(name);
+        }
+      }
+    };
+  }
+
+  // string, numbers, json
+  return {
+    get() {
+      const value = this.getAttribute(name);
+
+      if (typeOrSerDes === Types.number) {
+        return Number(value);
+      }
+
+      if (typeOrSerDes === Types.json) {
+        try {
+          return JSON.parse(value);
+        } catch (e) {
+          return value; // original string as fallback
+        }
+      }
+
+      return (typeof typeOrSerDes.deserialize === 'function')
+        ? typeOrSerDes.deserialize(value)
+        : value;
+    },
+    set(value) {
+      const attributeValue = (() => {
+        if (typeOrSerDes === Types.json) {
+          return JSON.stringify(value);
+        }
+
+        return (typeof typeOrSerDes.serialize === 'function')
+          ? typeOrSerDes.serialize(value)
+          : value.toString();
+      })();
+
+      this.setAttribute(name, attributeValue);
+    }
+  };
+};
+
+const definePropertiesFor = (WebComponent, mapping) => {
+  Object.keys(mapping).forEach((name) => {
+    const typeOrSerDes = mapping[name];
+
+    Object.defineProperty(
+      WebComponent.prototype,
+      name,
+      mapToPropertyDescriptor(name, typeOrSerDes)
+    );
   });
+};
+
+/**
+ * Function to register React components as web componenents
+ * ReactComponent: A react component
+ * tagName: A String name for the new custom tag
+ * mappingArg: Either an array of string property names to be connected with
+ *   the React components, or an object mapping prop names to types. In the
+ *   first case all prop types will default to the JSON type unless the
+ *   prop name starts with "on", then it will be an event type.
+ */
+
+function register(ReactComponent, tagName, mappingArg = {}) {
+  const getType = name => isHandlerConvention(name) ? Types.event : Types.json;
+  const mapping = Array.isArray(mappingArg) ?
+    objectFromArray(mappingArg, getType) : mappingArg;
+
+  const attributeNames = Object.keys(mapping).map(name => name.toLowerCase());
+
+  // render should be private
+  const render = (component) => {
+    const props = mapToProps(component, mapping);
+
+    ReactDOM.render(
+      React.createElement(ReactComponent, props, <slot></slot>),
+      component.shadowRoot
+    );
+  };
+
+  class WebReactComponent extends HTMLElement {
+    static get observedAttributes() {
+      return attributeNames;
+    }
+
+    constructor() {
+      super();
+      this.attachShadow({ mode: 'open' });
+    }
+
+    connectedCallback() {
+      render(this);
+    }
+
+    attributeChangedCallback() {
+      render(this);
+    }
+
+    disconnectedCallback() {
+      ReactDOM.unmountComponentAtNode(this.shadowRoot);
+    }
+  }
+
+  // dynamically create property getters and setters for attributes
+  // and event handlers
+  definePropertiesFor(WebReactComponent, mapping);
 
   return customElements.define(tagName, WebReactComponent);
 }
+
+export default {
+  register,
+  Types,
+};
+
+export {
+  register,
+  Types,
+};
+
