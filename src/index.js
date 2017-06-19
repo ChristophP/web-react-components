@@ -134,7 +134,23 @@ const definePropertiesFor = (WebComponent, mapping) => {
   });
 };
 
-function register(ReactComponent, tagName, mapping = {}) {
+/**
+ * Function to register React components as web componenents
+ * ReactComponent: A react component
+ * tagName: A String name for the new custom tag
+ * mappingArg: Either an array of string property names to be connected with
+ *   the React components, or an object mapping prop names to types. In the
+ *   first case all prop types will default to the JSON type unless the
+ *   prop name starts with "on", then it will be an event type.
+ */
+
+function register(ReactComponent, tagName, mappingArg = {}) {
+  const mapping = Array.isArray(mappingArg) ?
+    mappingArg.reduce((obj, name) => {
+      const type = name.startsWith('on') ? Types.event : Types.json;
+      return { ...obj, [name]: type };
+    }, {}) : mappingArg;
+
   const attributeNames = Object.keys(mapping).map(name => name.toLowerCase());
 
   // render should be private

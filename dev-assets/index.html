@@ -28,6 +28,17 @@
     I'm a <em>native</em> child
   </my-component>
 
+  <my-component2
+    id='"myComponent2"'
+    name='"Peter"'
+    age='45'
+    fruits='["apple","orange","banana"]'
+    isActive='true'
+    onClickButton="console.log('attribute callback `onclickbutton` triggered', this)"
+  >
+    I'm a <em>native</em> child
+  </my-component>
+
   <script>
     // create react component
     const h = React.createElement;
@@ -93,5 +104,11 @@
     document.addEventListener('onClickButton', function(e) {
       console.log('Event `onClickButton` bubbled :-)', e)
     });
+
+
+    // use array notation
+    WRC.register(MyComponent, 'my-component2', [
+      'name', 'age', 'fruits', 'isActive', 'onClickButton',
+    ]);
   </script>
 </body>
