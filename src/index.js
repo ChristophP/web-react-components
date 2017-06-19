@@ -121,7 +121,7 @@ const mapToPropertyDescriptor = (
 
       const attributeValue = (() => {
         if (typeOrSerDes === Types.json) {
-          return JSON.stringify(value);
+          return typeof value === 'string' ? value : JSON.stringify(value);
         }
 
         return (typeof typeOrSerDes.serialize === 'function')
