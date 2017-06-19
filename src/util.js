@@ -13,3 +13,13 @@ export const objectFromArray = (arr, createValue) =>
 export const mapObject = (fn, obj) => Object.keys(obj).reduce(
   (acc, key) => ({ ...acc, [key]: fn(obj[key], key, obj) })
 , {});
+
+// properly `set the value` for boolean attributes
+export const setBooleanAttribute = (node, name, value) => {
+  if (value) {
+    node.setAttribute(name, '');
+  } else {
+    node.removeAttribute(name);
+  }
+};
+

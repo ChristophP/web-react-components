@@ -1,7 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import CustomEvent from './custom-event-ponyfill';
-import { isHandlerConvention, objectFromArray, mapObject } from './util';
+import {
+  isHandlerConvention,
+  objectFromArray,
+  mapObject,
+  setBooleanAttribute,
+} from './util';
 
 const Types = {
   bool: 'bool',
@@ -77,11 +82,7 @@ const mapToPropertyDescriptor = (
         return this.hasAttribute(name);
       },
       set(value) {
-        if (value) {
-          this.setAttribute(name, '');
-        } else {
-          this.removeAttribute(name);
-        }
+        setBooleanAttribute(this, name, value);
       }
     };
   }
@@ -96,6 +97,11 @@ const mapToPropertyDescriptor = (
       }
 
       if (typeOrSerDes === Types.json) {
+        // handle boolean values
+        if (value === '') return true;
+        if (!this.hasAttribute(name)) return false;
+
+        // try to parse as JSON
         try {
           return JSON.parse(value);
         } catch (e) {
@@ -108,6 +114,11 @@ const mapToPropertyDescriptor = (
         : value;
     },
     set(value) {
+      if (typeOrSerDes === Types.json && typeof value === 'boolean') {
+        setBooleanAttribute(this, name, value);
+        return;
+      }
+
       const attributeValue = (() => {
         if (typeOrSerDes === Types.json) {
           return JSON.stringify(value);
