@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import CustomEvent from './custom-event-ponyfill';
 import {
   isHandlerConvention,
   objectFromArray,
@@ -40,8 +39,10 @@ const mapEventToProp = (node, name) => {
 };
 
 const mapToProps = (node, mapping) => {
-  const mapFunc = (typeOrSerDes, name) => (typeOrSerDes === Types.event) ?
-    mapEventToProp(node, name) : mapAttributeToProp(node, name);
+  const mapFunc = (typeOrSerDes, name) => (typeOrSerDes === Types.event
+    ? mapEventToProp(node, name)
+    : mapAttributeToProp(node, name)
+  );
   return mapObject(mapFunc, mapping);
 };
 
@@ -63,15 +64,16 @@ const mapToPropertyDescriptor = (
 
         // try to return a function representation of the event handler attr.
         try {
+          // eslint-disable-next-line no-new-func
           return new Function(value);
         } catch (err) {
           return null;
-        };
+        }
       },
       set(value) {
         eventHandler = (typeof value === 'function') ? value : null;
         this.attributeChangedCallback();
-      }
+      },
     };
   }
 
@@ -83,7 +85,7 @@ const mapToPropertyDescriptor = (
       },
       set(value) {
         setBooleanAttribute(this, name, value);
-      }
+      },
     };
   }
 
@@ -130,7 +132,7 @@ const mapToPropertyDescriptor = (
       })();
 
       this.setAttribute(name, attributeValue);
-    }
+    },
   };
 };
 
@@ -141,7 +143,7 @@ const definePropertiesFor = (WebComponent, mapping) => {
     Object.defineProperty(
       WebComponent.prototype,
       name,
-      mapToPropertyDescriptor(name, typeOrSerDes)
+      mapToPropertyDescriptor(name, typeOrSerDes),
     );
   });
 };
@@ -157,7 +159,8 @@ const definePropertiesFor = (WebComponent, mapping) => {
  */
 
 function register(ReactComponent, tagName, mappingArg = {}) {
-  const getType = name => isHandlerConvention(name) ? Types.event : Types.json;
+  const getType = name =>
+    (isHandlerConvention(name) ? Types.event : Types.json);
   const mapping = Array.isArray(mappingArg) ?
     objectFromArray(mappingArg, getType) : mappingArg;
 
@@ -168,8 +171,8 @@ function register(ReactComponent, tagName, mappingArg = {}) {
     const props = mapToProps(component, mapping);
 
     ReactDOM.render(
-      React.createElement(ReactComponent, props, <slot></slot>),
-      component.shadowRoot
+      React.createElement(ReactComponent, props, React.createElement('slot')),
+      component.shadowRoot,
     );
   };
 
