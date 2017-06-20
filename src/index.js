@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import CustomEvent from './custom-event-ponyfill';
 import { isHandlerConvention, objectFromArray, mapObject } from './util';
 
 const Types = {
