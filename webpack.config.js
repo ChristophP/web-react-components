@@ -1,25 +1,22 @@
 const path = require('path');
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: './src/index.js',
   output: {
-    path: __dirname + "/dist",
-    filename: "bundle.js",
+    path: path.resolve(__dirname, '/dist'),
+    filename: 'bundle.js',
     library: 'WebReactComponents',
-    libraryTarget: "umd"
+    libraryTarget: 'umd',
   },
   module: {
-    loaders: [{
-      test: /\.js$/,
+    rules: [{
+      test: /\.jsx?$/,
       exclude: /node_modules/,
-      loader: "babel-loader",
-      query: {
-        presets: ["es2015", "react"],
-        plugins: [
-          "transform-object-rest-spread"
-        ]
-      },
-    }]
+      loaders: [
+        'babel-loader',
+        'eslint-loader',
+      ],
+    }],
   },
   externals: {
     react: {
@@ -33,12 +30,12 @@ module.exports = {
       commonjs2: 'react-dom',
       amd: 'react-dom',
       root: 'ReactDOM',
-    }
+    },
   },
   devServer: {
     contentBase: path.join(__dirname, 'dev-assets'),
     port: process.env.PORT || 8080,
     host: '0.0.0.0',
-    disableHostCheck: true
-  }
+    disableHostCheck: true,
+  },
 };
