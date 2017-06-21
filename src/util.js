@@ -33,8 +33,7 @@ export const isBoolConvention = prop => boolRegex.test(prop);
 // ending in "()"
 export const isHandlerConvention = prop => handlerRegex.test(prop);
 
-// check if a propName corresponds to a handler convention,
-// ending in "()"
+// clean an attribute name from modifiers like !! and ()
 export const sanitizeAttributeName =
   prop => prop.replace(boolRegex, '').replace(handlerRegex, '');
 
