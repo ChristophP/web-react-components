@@ -221,11 +221,9 @@ function register(ReactComponent, tagName, propNames) {
 
 export default {
   register,
-  Types,
 };
 
 export {
   register,
-  Types,
 };
 
