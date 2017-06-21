@@ -13,10 +13,8 @@ import {
 
 const Types = {
   bool: 'bool',
-  number: 'number',
-  string: 'string',
-  json: 'json',
   event: 'event',
+  json: 'json',
 };
 
 const mapAttributeToProp = (node, name) => node[name];
@@ -43,7 +41,7 @@ const mapEventToProp = (node, name) => {
 };
 
 const mapToProps = (node, mapping) => {
-  const mapFunc = (typeOrSerDes, name) => (typeOrSerDes === Types.event
+  const mapFunc = (type, name) => (type === Types.event
     ? mapEventToProp(node, name)
     : mapAttributeToProp(node, name)
   );
@@ -52,10 +50,10 @@ const mapToProps = (node, mapping) => {
 
 const mapToPropertyDescriptor = (
   name,
-  typeOrSerDes,
+  type,
 ) => {
   // handlers
-  if (typeOrSerDes === Types.event) {
+  if (type === Types.event) {
     let eventHandler;
     return {
       get() {
@@ -82,7 +80,7 @@ const mapToPropertyDescriptor = (
   }
 
   // booleans
-  if (typeOrSerDes === Types.bool) {
+  if (type === Types.bool) {
     return {
       get() {
         return this.hasAttribute(name);
@@ -93,61 +91,32 @@ const mapToPropertyDescriptor = (
     };
   }
 
-  // string, numbers, json
+  // json
   return {
     get() {
       const value = this.getAttribute(name);
 
-      if (typeOrSerDes === Types.number) {
-        return Number(value);
+      // try to parse as JSON
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        return value; // original string as fallback
       }
-
-      if (typeOrSerDes === Types.json) {
-        // handle boolean values
-        if (value === '') return true;
-        if (!this.hasAttribute(name)) return false;
-
-        // try to parse as JSON
-        try {
-          return JSON.parse(value);
-        } catch (e) {
-          return value; // original string as fallback
-        }
-      }
-
-      return (typeof typeOrSerDes.deserialize === 'function')
-        ? typeOrSerDes.deserialize(value)
-        : value;
     },
     set(value) {
-      if (typeOrSerDes === Types.json && typeof value === 'boolean') {
-        setBooleanAttribute(this, name, value);
-        return;
-      }
-
-      const attributeValue = (() => {
-        if (typeOrSerDes === Types.json) {
-          return typeof value === 'string' ? value : JSON.stringify(value);
-        }
-
-        return (typeof typeOrSerDes.serialize === 'function')
-          ? typeOrSerDes.serialize(value)
-          : value.toString();
-      })();
-
-      this.setAttribute(name, attributeValue);
+      this.setAttribute(name, JSON.stringify(value));
     },
   };
 };
 
 const definePropertiesFor = (WebComponent, mapping) => {
   Object.keys(mapping).forEach((name) => {
-    const typeOrSerDes = mapping[name];
+    const type = mapping[name];
 
     Object.defineProperty(
       WebComponent.prototype,
       name,
-      mapToPropertyDescriptor(name, typeOrSerDes),
+      mapToPropertyDescriptor(name, type),
     );
   });
 };
