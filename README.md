@@ -79,12 +79,32 @@ register('your-component', YourComponent, [
 ```
 
 Then you can render the component from anywhere (even Elm, React, plain HTML, Angular if you really have to :-))
+
+Elm:
+```elm
+yourComponent : List (Attribute msg) -> List (Html msg) -> Html msg
+yourComponent = node "your-component"
+
+-- Then in the view do this
+...
+div [] [
+  yourComponent
+    [ attribute "name" "Peter"
+    , property "isDisbabled" (Json.Encode.bool True)
+    , on "how to do handlers"???
+    ]
+    [ span [style ("color", "green")] [text "Click Me"]
+  ]
+]
+```
+
+Plain HTML:
 ```html
 ...
 <div>
   <!-- render your component like this-->
   <your-component name="Peter" isDisabled onButtonClick="console.log('you can also use `addEventListener` to attach events')">
-    <span style="color: green;">
+    <span style="color: green;">Click Me</span>
   </your-component>
 </div>
 ```
