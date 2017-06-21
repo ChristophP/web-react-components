@@ -32,7 +32,8 @@
     name="Peter"
     age="46"
     fruits='["apple","orange","banana"]'
-    isActive="true"
+    config='{"foo":42,"bar":true,"baz":"qux"}'
+    isActive
     onClickButton="console.log('attribute callback `onclickbutton` triggered', this)"
   >
     I'm a <em>native</em> child
@@ -107,7 +108,7 @@
 
     // use array notation
     WRC.register(MyComponent, 'my-component2', [
-      'name', 'age', 'fruits', 'isActive', 'onClickButton',
+      'name', 'age', 'fruits', 'isActive', 'onClickButton', 'config'
     ]);
   </script>
 </body>
