@@ -5,9 +5,9 @@ anywhere not just in your react code.
 
 ## Motivation
 
-We has lot of React code and really wanted to write Elm. Putting React inside Elm
+We have lots of React code and really wanted to write Elm. Putting React inside Elm
 is not trivial and not being able to use our tried-and-tested components
-would have been a big reason to use Elm.
+would have been a big reason against Elm.
 So after watching Richard Feldman's [talk](https://www.youtube.com/watch?v=ar3TakwE8o0)
 we thought "what if Elm rendered just Web Components and the web components render
 whatever they want inside(in our case React)". So how to convert all of our React
@@ -25,11 +25,16 @@ These polyfills are needed polyfills to work in all evergreen browsers(including
 - Everything you need to provide an ES2015 environment in the browser
 
 Libraries:
-- React (globally available)
-- ReactDOM (globally available)
+- React
+- ReactDOM
 
-To get started quickly just drop these script tags into your page. They should
-contain all of the above dependencies.
+If you don't want to assemle all these polyfills yourself and just want to get
+started quickly just drop these script tags into your page. They contain everything
+you need to get going.
+
+NOTE even if you use Chrome which supports Web Components, you will still need
+the `custom-elements-es5-adapter`.
+
 
 ```html
 <script src="//cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch,es6,Array.prototype.includes"></script>
@@ -44,16 +49,15 @@ contain all of the above dependencies.
 ```sh
 npm install -S web-react-components
 ```
-(NOT YET PUBLISHED)
 
 Then in your code import the registering function
 
 ```js
 import React from 'react';
 // import the registering function
-import register from 'web-react-components';
+import { register } from 'web-react-components';
 
-const YourComponents = ({ name, onButtonClick }) => (
+const YourComponent = ({ name, isDisabled,  onButtonClick }) => (
   <button onClick={onButtonClick}>
     {`Hello ${name}, please click me`}
   </button>
@@ -61,9 +65,28 @@ const YourComponents = ({ name, onButtonClick }) => (
 
 // call it to register the web component
 // this will transform all <your-component>-tags in the markup
+// ATTENTION: all custom element tag names MUST contain a dash(LINK WC spec)
 // use it anywhere like this:
 // <your-component name="Peter" onClick="console.log('hello')"></your-component>
-register('your-component', YourComponent);
+register('your-component', YourComponent, [
+  // these attribute values will be json parsed
+  'name',
+  // this will define a boolean attribute
+  '!!isDisabled',
+  // a handler
+  'onButtonClick()',
+]);
+```
+
+Then you can render the component from anywhere (even Elm, React, plain HTML, Angular if you really have to :-))
+```html
+...
+<div>
+  <!-- render your component like this-->
+  <your-component name="Peter" isDisabled onButtonClick="console.log('you can also use `addEventListener` to attach events')">
+    <span style="color: green;">
+  </your-component>
+</div>
 ```
 
 ## Passing props
