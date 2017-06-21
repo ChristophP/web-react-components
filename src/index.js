@@ -1,9 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {
+  pipe,
+  isBoolConvention,
   isHandlerConvention,
   objectFromArray,
   mapObject,
+  mapObjectKeys,
+  sanitizeAttributeName,
   setBooleanAttribute,
 } from './util';
 
@@ -148,6 +152,16 @@ const definePropertiesFor = (WebComponent, mapping) => {
   });
 };
 
+const getType = (name) => {
+  if (isBoolConvention(name)) {
+    return Types.bool;
+  }
+  if (isHandlerConvention(name)) {
+    return Types.event;
+  }
+  return Types.json;
+};
+
 /**
  * Function to register React components as web componenents
  * ReactComponent: A react component
@@ -158,11 +172,10 @@ const definePropertiesFor = (WebComponent, mapping) => {
  *   prop name starts with "on", then it will be an event type.
  */
 
-function register(ReactComponent, tagName, mappingArg = {}) {
-  const getType = name =>
-    (isHandlerConvention(name) ? Types.event : Types.json);
-  const mapping = Array.isArray(mappingArg) ?
-    objectFromArray(mappingArg, getType) : mappingArg;
+function register(ReactComponent, tagName, propNames) {
+  const createMap = obj => objectFromArray(getType, obj);
+  const cleanKeys = obj => mapObjectKeys(sanitizeAttributeName, obj);
+  const mapping = pipe(createMap, cleanKeys)(propNames);
 
   const attributeNames = Object.keys(mapping).map(name => name.toLowerCase());
 

@@ -19,18 +19,6 @@
     id="myComponent"
     name="Peter"
     age="45"
-    fruits="apple,orange,banana"
-    config='{"foo":42,"bar":true,"baz":"qux"}'
-    isActive
-    onClickButton="console.log('attribute callback `onclickbutton` triggered', this)"
-  >
-    I'm a <em>native</em> child
-  </my-component>
-
-  <my-component2
-    id="myComponent2"
-    name="Peter"
-    age="46"
     fruits='["apple","orange","banana"]'
     config='{"foo":42,"bar":true,"baz":"qux"}'
     isActive
@@ -74,18 +62,18 @@
 
     // register react component as custom element
     const WRC = WebReactComponents;
-    WRC.register(MyComponent, 'my-component', {
-      name: WRC.Types.string,
-      age: WRC.Types.number,
-      fruits: {
-        serialize: (arr) => arr ? arr.join(',') : '',
-        deserialize: (str) => str ? str.split(',') : [],
-      },
-      config: WRC.Types.json,
-      isActive: WRC.Types.bool,
-      onClickButton: WRC.Types.event,
-      onHoverName: WRC.Types.event,
-    });
+    WRC.register(MyComponent, 'my-component', [
+      // these will be json parsed
+      'name',
+      'age',
+      'fruits',
+      'config',
+      // specify a boolean attribute like this
+      '!!isActive',
+      // these will be handlers
+      'onClickButton()',
+      'onHoverName()',
+    ]);
 
     // add some DOM Level 3 event handlers
     const c = document.getElementById('myComponent');
@@ -104,11 +92,5 @@
     document.addEventListener('onClickButton', function(e) {
       console.log('Event `onClickButton` bubbled :-)', e)
     });
-
-
-    // use array notation
-    WRC.register(MyComponent, 'my-component2', [
-      'name', 'age', 'fruits', 'isActive', 'onClickButton', 'config'
-    ]);
   </script>
 </body>
