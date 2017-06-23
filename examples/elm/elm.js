@@ -8260,6 +8260,12 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
+var _user$project$Main$hasError = function (_p0) {
+	return A2(
+		_elm_lang$html$Html_Attributes$property,
+		'hasError',
+		_elm_lang$core$Json_Encode$bool(_p0));
+};
 var _user$project$Main$customSelect = _elm_lang$html$Html$node('custom-select');
 var _user$project$Main$detailTargetValueDecoder = A2(
 	_elm_lang$core$Json_Decode$field,
@@ -8287,8 +8293,8 @@ var _user$project$Main$onChange = function (tagger) {
 };
 var _user$project$Main$update = F2(
 	function (msg, model) {
-		var _p0 = msg;
-		switch (_p0.ctor) {
+		var _p1 = msg;
+		switch (_p1.ctor) {
 			case 'ToggleDisabled':
 				return _elm_lang$core$Native_Utils.update(
 					model,
@@ -8300,22 +8306,27 @@ var _user$project$Main$update = F2(
 						value: _elm_lang$core$Native_Utils.eq(model.value, 'one') ? 'two' : 'one'
 					});
 			case 'ChangeValue':
-				var _p2 = _p0._0;
-				var _p1 = A2(_elm_lang$core$Debug$log, 'value changed from Elm', _p2);
+				var _p3 = _p1._0;
+				var _p2 = A2(_elm_lang$core$Debug$log, 'value changed from Elm', _p3);
 				return _elm_lang$core$Native_Utils.update(
 					model,
-					{value: _p2});
+					{value: _p3});
+			case 'ChangeName':
+				return _elm_lang$core$Native_Utils.update(
+					model,
+					{name: _p1._0});
 			default:
 				return _elm_lang$core$Native_Utils.update(
 					model,
-					{name: _p0._0});
+					{hasError: !model.hasError});
 		}
 	});
-var _user$project$Main$Model = F3(
-	function (a, b, c) {
-		return {disabled: a, value: b, name: c};
+var _user$project$Main$Model = F4(
+	function (a, b, c, d) {
+		return {disabled: a, value: b, name: c, hasError: d};
 	});
-var _user$project$Main$model = A3(_user$project$Main$Model, false, 'one', 'form-field-name');
+var _user$project$Main$model = A4(_user$project$Main$Model, false, 'one', 'form-field-name', false);
+var _user$project$Main$ToggleError = {ctor: 'ToggleError'};
 var _user$project$Main$ChangeName = function (a) {
 	return {ctor: 'ChangeName', _0: a};
 };
@@ -8352,23 +8363,24 @@ var _user$project$Main$view = function (model) {
 								_0: _elm_lang$html$Html_Attributes$id('customComponent'),
 								_1: {
 									ctor: '::',
-									_0: A2(_elm_lang$html$Html_Attributes$attribute, 'name', model.name),
+									_0: _elm_lang$html$Html_Attributes$name(model.name),
 									_1: {
 										ctor: '::',
-										_0: A2(_elm_lang$html$Html_Attributes$attribute, 'value', model.value),
+										_0: _elm_lang$html$Html_Attributes$value(model.value),
 										_1: {
 											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html_Attributes$property,
-												'disabled',
-												_elm_lang$core$Json_Encode$bool(model.disabled)),
+											_0: _elm_lang$html$Html_Attributes$disabled(model.disabled),
 											_1: {
 												ctor: '::',
-												_0: A2(_elm_lang$html$Html_Attributes$attribute, 'options', '[{ \"value\": \"one\", \"label\": \"One\" },{ \"value\": \"two\", \"label\": \"Two\" }]'),
+												_0: _user$project$Main$hasError(model.hasError),
 												_1: {
 													ctor: '::',
-													_0: _user$project$Main$onChange(_user$project$Main$ChangeValue),
-													_1: {ctor: '[]'}
+													_0: A2(_elm_lang$html$Html_Attributes$attribute, 'options', '[{ \"value\": \"one\", \"label\": \"One\" },{ \"value\": \"two\", \"label\": \"Two\" }]'),
+													_1: {
+														ctor: '::',
+														_0: _user$project$Main$onChange(_user$project$Main$ChangeValue),
+														_1: {ctor: '[]'}
+													}
 												}
 											}
 										}
@@ -8418,29 +8430,44 @@ var _user$project$Main$view = function (model) {
 								_1: {
 									ctor: '::',
 									_0: A2(
-										_elm_lang$html$Html$label,
-										{ctor: '[]'},
+										_elm_lang$html$Html$button,
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html$text('Change name'),
-											_1: {
-												ctor: '::',
-												_0: A2(
-													_elm_lang$html$Html$input,
-													{
-														ctor: '::',
-														_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$ChangeName),
-														_1: {
-															ctor: '::',
-															_0: _elm_lang$html$Html_Attributes$value(model.name),
-															_1: {ctor: '[]'}
-														}
-													},
-													{ctor: '[]'}),
-												_1: {ctor: '[]'}
-											}
+											_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$ToggleError),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('toggle error'),
+											_1: {ctor: '[]'}
 										}),
-									_1: {ctor: '[]'}
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$label,
+											{ctor: '[]'},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text('Change name'),
+												_1: {
+													ctor: '::',
+													_0: A2(
+														_elm_lang$html$Html$input,
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$ChangeName),
+															_1: {
+																ctor: '::',
+																_0: _elm_lang$html$Html_Attributes$value(model.name),
+																_1: {ctor: '[]'}
+															}
+														},
+														{ctor: '[]'}),
+													_1: {ctor: '[]'}
+												}
+											}),
+										_1: {ctor: '[]'}
+									}
 								}
 							}
 						}),

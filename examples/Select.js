@@ -2,7 +2,7 @@ function Select(props) {
   var h = React.createElement;
   return h('div', null,
     // childern will be rendern into the label
-    h('label', null, props.children),
+    h('label', { style: props.hasError ? { color: 'red' } : {} }, props.children),
     h('select', {
         name: props.name,
         value: props.value,

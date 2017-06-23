@@ -8,8 +8,6 @@
   <script src="../Select.js"></script>
   <script src="../../dist/bundle.js"></script>
   <script src="elm.js"></script>
-
-  <link rel="stylesheet" href="https://unpkg.com/react-select/dist/react-select.css">
   <style>
 button, input, label {
   display: inline-block,
@@ -27,6 +25,7 @@ WebReactComponents.register(Select, 'custom-select', [
   'value',
   'options',
   '!!disabled',
+  '!!hasError',
   'onChange()',
 ]);
 
