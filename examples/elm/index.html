@@ -10,6 +10,14 @@
   <script src="elm.js"></script>
 
   <link rel="stylesheet" href="https://unpkg.com/react-select/dist/react-select.css">
+  <style>
+button, input, label {
+  display: inline-block,
+  padding : 10;
+  margin: 20px;
+}
+
+  </style>
 </head>
 <body>
   <div id="root"></div>
@@ -22,13 +30,13 @@ WebReactComponents.register(Select, 'custom-select', [
   'onChange()',
 ]);
 
-    Elm.Main.embed(document.getElementById('root'));
+Elm.Main.embed(document.getElementById('root'));
 
-// elm render asynchronously, so delay the following
+// elm renders asynchronously, so delay the following
 setTimeout(function() {
   document.getElementById('customComponent').addEventListener('onChange', function(e) {
-    console.log(e.detail[0].target.value);
-  }, false)
+    console.log('Original React event value:', e.detail[0].target.value);
+  }, false);
 }, 0);
   </script>
 </body>

@@ -14,17 +14,19 @@ main =
 type alias Model =
     { disabled : Bool
     , value : String
+    , name : String
     }
 
 
 type Msg
     = ToggleDisabled
     | ToggleValue
-    | Change String
+    | ChangeValue String
+    | ChangeName String
 
 
 model =
-    Model False "one"
+    Model False "one" "form-field-name"
 
 
 update msg model =
@@ -41,12 +43,15 @@ update msg model =
                         "one"
             }
 
-        Change val ->
+        ChangeValue val ->
             let
                 _ =
-                    Debug.log "value changed" val
+                    Debug.log "value changed from Elm" val
             in
                 { model | value = val }
+
+        ChangeName name ->
+            { model | name = name }
 
 
 onChange : (String -> Msg) -> Html.Attribute Msg
@@ -73,21 +78,25 @@ customSelect =
 
 view model =
     div []
-        [ div []
+        [ h3 [] [ text "Custom select component" ]
+        , div []
             [ customSelect
                 [ id "customComponent"
-                , attribute "name" "form-field-name"
+                , attribute "name" model.name
                 , attribute "value" model.value
                 , property "disabled" (Encode.bool model.disabled)
                 , attribute "options"
                     "[{ \"value\": \"one\", \"label\": \"One\" },{ \"value\": \"two\", \"label\": \"Two\" }]"
-                , onChange Change
+                , onChange ChangeValue
                 ]
-                [ h3 [] [ b [] [ text "Select cool stuff" ] ]
-                ]
+                [ text "Select cool stuff" ]
             ]
         , div []
             [ button [ onClick ToggleDisabled ] [ text "toggle disabled" ]
             , button [ onClick ToggleValue ] [ text "toggle value" ]
+            , label []
+                [ text "Change name"
+                , input [ onInput ChangeName, value model.name ] []
+                ]
             ]
         ]
