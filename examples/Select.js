@@ -9,7 +9,7 @@ function Select(props) {
         disabled: props.disabled,
         onChange: props.onChange,
       },
-      props.options.map(function(item) {
+      props.options && props.options.map(function(item) {
         return h('option', { value: item.value }, item.label);
       })
     )
