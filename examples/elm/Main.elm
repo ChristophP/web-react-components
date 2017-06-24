@@ -20,12 +20,27 @@ type alias Model =
     }
 
 
+type alias Options =
+    List (List ( String, String ))
+
+
 type Msg
     = ToggleDisabled
     | ToggleValue
     | ChangeValue String
     | ChangeName String
     | ToggleError
+
+
+optionsData : Options
+optionsData =
+    [ [ ( "value", "one" )
+      , ( "label", "One" )
+      ]
+    , [ ( "value", "two" )
+      , ( "label", "Two" )
+      ]
+    ]
 
 
 model : Model
@@ -92,6 +107,18 @@ hasError =
     property "hasError" << Encode.bool
 
 
+encodeOptionsData : Options -> Encode.Value
+encodeOptionsData =
+    Encode.list
+        << List.map Encode.object
+        << List.map (List.map (Tuple.mapSecond Encode.string))
+
+
+options : Options -> Attribute Msg
+options =
+    property "options" << encodeOptionsData
+
+
 view : Model -> Html Msg
 view model =
     div []
@@ -103,8 +130,7 @@ view model =
                 , value model.value
                 , disabled model.disabled
                 , hasError model.hasError
-                , attribute "options"
-                    "[{ \"value\": \"one\", \"label\": \"One\" },{ \"value\": \"two\", \"label\": \"Two\" }]"
+                , options optionsData
                 , onChange ChangeValue
                 ]
                 [ text "Select cool stuff" ]
