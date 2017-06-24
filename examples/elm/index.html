@@ -1,0 +1,42 @@
+<html>
+<head>
+  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch,es6,Array.prototype.includes"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.1/custom-elements-es5-adapter.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.1/webcomponents-sd-ce.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.1.0/react.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.1.0/react-dom.min.js"></script>
+  <script src="../Select.js"></script>
+  <script src="../../dist/bundle.js"></script>
+  <script src="elm.js"></script>
+  <style>
+button, input, label {
+  display: inline-block,
+  padding : 10;
+  margin: 20px;
+}
+
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+WebReactComponents.register(Select, 'custom-select', [
+  'name',
+  'value',
+  'options',
+  '!!disabled',
+  '!!hasError',
+  'onChange()',
+]);
+
+Elm.Main.embed(document.getElementById('root'));
+
+// elm renders asynchronously, so delay the following
+setTimeout(function() {
+  document.getElementById('customComponent').addEventListener('onChange', function(e) {
+    console.log('Original React event value:', e.detail[0].target.value);
+  }, false);
+}, 0);
+  </script>
+</body>
+</html>

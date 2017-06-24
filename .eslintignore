@@ -1,2 +1,5 @@
 dist/
 node_modules/
+*.elm
+elm-stuff/
+examples/

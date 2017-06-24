@@ -104,7 +104,8 @@ const mapToPropertyDescriptor = (
       }
     },
     set(value) {
-      this.setAttribute(name, JSON.stringify(value));
+      const str = (typeof value === 'string') ? value : JSON.stringify(value);
+      this.setAttribute(name, str);
     },
   };
 };
