@@ -20,10 +20,6 @@ type alias Model =
     }
 
 
-type alias Options =
-    List (List ( String, String ))
-
-
 type Msg
     = ToggleDisabled
     | ToggleValue
@@ -32,15 +28,20 @@ type Msg
     | ToggleError
 
 
-optionsData : Options
-optionsData =
-    [ [ ( "value", "one" )
-      , ( "label", "One" )
-      ]
-    , [ ( "value", "two" )
-      , ( "label", "Two" )
-      ]
-    ]
+{-| Encoded JSON data to pass to the web component
+-}
+optionsValue : Encode.Value
+optionsValue =
+    Encode.list
+        [ Encode.object
+            [ ( "value", Encode.string "one" )
+            , ( "label", Encode.string "One" )
+            ]
+        , Encode.object
+            [ ( "value", Encode.string "two" )
+            , ( "label", Encode.string "Two" )
+            ]
+        ]
 
 
 model : Model
@@ -107,16 +108,11 @@ hasError =
     property "hasError" << Encode.bool
 
 
-encodeOptionsData : Options -> Encode.Value
-encodeOptionsData =
-    Encode.list
-        << List.map Encode.object
-        << List.map (List.map (Tuple.mapSecond Encode.string))
-
-
-options : Options -> Attribute Msg
+{-| Create shorthand for options property
+-}
+options : Encode.Value -> Attribute Msg
 options =
-    property "options" << encodeOptionsData
+    property "options"
 
 
 view : Model -> Html Msg
@@ -130,7 +126,7 @@ view model =
                 , value model.value
                 , disabled model.disabled
                 , hasError model.hasError
-                , options optionsData
+                , options optionsValue
                 , onChange ChangeValue
                 ]
                 [ text "Select cool stuff" ]

@@ -8260,28 +8260,12 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
-var _user$project$Main$encodeOptionsData = function (_p0) {
-	return _elm_lang$core$Json_Encode$list(
-		A2(
-			_elm_lang$core$List$map,
-			_elm_lang$core$Json_Encode$object,
-			A2(
-				_elm_lang$core$List$map,
-				_elm_lang$core$List$map(
-					_elm_lang$core$Tuple$mapSecond(_elm_lang$core$Json_Encode$string)),
-				_p0)));
-};
-var _user$project$Main$options = function (_p1) {
-	return A2(
-		_elm_lang$html$Html_Attributes$property,
-		'options',
-		_user$project$Main$encodeOptionsData(_p1));
-};
-var _user$project$Main$hasError = function (_p2) {
+var _user$project$Main$options = _elm_lang$html$Html_Attributes$property('options');
+var _user$project$Main$hasError = function (_p0) {
 	return A2(
 		_elm_lang$html$Html_Attributes$property,
 		'hasError',
-		_elm_lang$core$Json_Encode$bool(_p2));
+		_elm_lang$core$Json_Encode$bool(_p0));
 };
 var _user$project$Main$customSelect = _elm_lang$html$Html$node('custom-select');
 var _user$project$Main$detailTargetValueDecoder = A2(
@@ -8310,8 +8294,8 @@ var _user$project$Main$onChange = function (tagger) {
 };
 var _user$project$Main$update = F2(
 	function (msg, model) {
-		var _p3 = msg;
-		switch (_p3.ctor) {
+		var _p1 = msg;
+		switch (_p1.ctor) {
 			case 'ToggleDisabled':
 				return _elm_lang$core$Native_Utils.update(
 					model,
@@ -8323,46 +8307,65 @@ var _user$project$Main$update = F2(
 						value: _elm_lang$core$Native_Utils.eq(model.value, 'one') ? 'two' : 'one'
 					});
 			case 'ChangeValue':
-				var _p5 = _p3._0;
-				var _p4 = A2(_elm_lang$core$Debug$log, 'value changed from Elm', _p5);
+				var _p3 = _p1._0;
+				var _p2 = A2(_elm_lang$core$Debug$log, 'value changed from Elm', _p3);
 				return _elm_lang$core$Native_Utils.update(
 					model,
-					{value: _p5});
+					{value: _p3});
 			case 'ChangeName':
 				return _elm_lang$core$Native_Utils.update(
 					model,
-					{name: _p3._0});
+					{name: _p1._0});
 			default:
 				return _elm_lang$core$Native_Utils.update(
 					model,
 					{hasError: !model.hasError});
 		}
 	});
-var _user$project$Main$optionsData = {
-	ctor: '::',
-	_0: {
+var _user$project$Main$optionsValue = _elm_lang$core$Json_Encode$list(
+	{
 		ctor: '::',
-		_0: {ctor: '_Tuple2', _0: 'value', _1: 'one'},
+		_0: _elm_lang$core$Json_Encode$object(
+			{
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'value',
+					_1: _elm_lang$core$Json_Encode$string('one')
+				},
+				_1: {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'label',
+						_1: _elm_lang$core$Json_Encode$string('One')
+					},
+					_1: {ctor: '[]'}
+				}
+			}),
 		_1: {
 			ctor: '::',
-			_0: {ctor: '_Tuple2', _0: 'label', _1: 'One'},
+			_0: _elm_lang$core$Json_Encode$object(
+				{
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'value',
+						_1: _elm_lang$core$Json_Encode$string('two')
+					},
+					_1: {
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'label',
+							_1: _elm_lang$core$Json_Encode$string('Two')
+						},
+						_1: {ctor: '[]'}
+					}
+				}),
 			_1: {ctor: '[]'}
 		}
-	},
-	_1: {
-		ctor: '::',
-		_0: {
-			ctor: '::',
-			_0: {ctor: '_Tuple2', _0: 'value', _1: 'two'},
-			_1: {
-				ctor: '::',
-				_0: {ctor: '_Tuple2', _0: 'label', _1: 'Two'},
-				_1: {ctor: '[]'}
-			}
-		},
-		_1: {ctor: '[]'}
-	}
-};
+	});
 var _user$project$Main$Model = F4(
 	function (a, b, c, d) {
 		return {disabled: a, value: b, name: c, hasError: d};
@@ -8417,7 +8420,7 @@ var _user$project$Main$view = function (model) {
 												_0: _user$project$Main$hasError(model.hasError),
 												_1: {
 													ctor: '::',
-													_0: _user$project$Main$options(_user$project$Main$optionsData),
+													_0: _user$project$Main$options(_user$project$Main$optionsValue),
 													_1: {
 														ctor: '::',
 														_0: _user$project$Main$onChange(_user$project$Main$ChangeValue),
