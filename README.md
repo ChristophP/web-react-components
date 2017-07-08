@@ -234,5 +234,5 @@ issue.
 
 ## Credits
 
-Made with countless hours of bouncing around ideas with @layflags. Also intially
-inspired by talks with @tkreis and @rtfeldman, @tomekwi at the Elm Europe 2017.
+Made with countless hours of bouncing around ideas with `layflags`. Also intially
+inspired by talks with `tkreis` and `rtfeldman`, `tomekwi` at the Elm Europe 2017.
