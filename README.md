@@ -19,7 +19,7 @@ This package requires the following dependencies:
 
 Polyfills:
 These polyfills are needed for this to work in all evergreen browsers(including IE11).
-We use polyfills for Web Components V1(LINK).
+We use polyfills for [Web Components V1](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Custom_Elements).
 
 - Polyfills for Web Components features, namely custom elements(CE) and shady DOM(SD)
 - Adapter to transform non-native ES2015 classes into true ES2015 classes(needed for CE)
@@ -51,7 +51,7 @@ the `custom-elements-es5-adapter`.**
 npm install -S web-react-components
 ```
 
-Then in your code import the registering function.
+Then in your code, import the registering function.
 
 ```js
 import React from 'react';
@@ -135,20 +135,89 @@ document.getElementById('your-dom-id').numbers = [1, 2, 3, 4];
 ```
 
 ### Events
-TODO
+
+Events can be passed in 3 different ways that you should be familiar with from
+the DOM.
+
+```js
+// with `addEventListener()`
+document.getElementById('#my-component').addEventListener('onClick', function() { ... }, false);
+
+// with the DOM Property (notice the uppercase `C`, because the name has to be the same as
+the property in React)
+document.getElementById('#my-component').onClick(function() { ... });
+
+// with the HTML Attributes
+<custom-component onClick="console.log('Hello')"></custom-component>
+```
+To access data from the original event from React you will have to
+do something like this:
+
+```js
+document.getElementById('#my-component').addEventListener('onClick', function(event) {
+  // data is an array of arguments that were passed to the react event handler
+  const data = event.detail;
+  // log the first arg of the react event handler
+  console.log(data[0]);
+}, false);
+```
 
 ### Children
-TODO
+Children are passed like you would expect by simple add child nodes to the
+element or programmatically changing the `innerHMTL` or `childNodes` of a
+custom compoenent.
 
-## What about CSS
+The children will be part of the shadow DOM of the custom components and rendered
+into a [`<slot>`-tag](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot).
+That `<slot>` will be passed to the React components as `children`,
+that you can render whereever you want.
 
-Since the React components, which are wrapped by the Web Component will live in the
-shadow DOM (LINK), global css will not have any effect on them. Thus we recommend
-shipping the components, with internal stylesheets or inline styles.
+```html
+<custom-component onClick="console.log('Hello')">
+  <span>I am a child</span> // will be passed as `children` to React
+</custom-component>
+```
+
+## What about CSS?
+
+Since the React components, which are wrapped by the Web Component, will live in the
+[shadow DOM](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Shadow_DOM),
+global css will not have any effect on them(at least in browser, which are correcly
+implementing it). Thus we recommend shipping the components with inline styles, an internal stylesheet, or
+or if you want to include an external stylesheet, use an `@import` declaration in
+an internal style tag, like this.
+
+```html
+// inside render method of your React component
+<style>
+  @import url('path/to/stylesheeet.css');
+</style>
+```
 
 ## How does it work under the hood?
 
-???
+For the ultimate source of truth the source code is pretty much all this this
+[file](https://github.com/ChristophP/web-react-components/blob/master/src/index.js)
+
+But here is a quick write-up:
+
+For each property that is declared with the exposed register function a DOM
+attribute is created, that is being listened to for changes through
+the [`attributeChangedCallback`](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Custom_Elements).
+Also, a corresponding DOM node property is set up with getter and setters that
+keeps the property and the attribute in sync. Registering a property with a
+leading `!!` will declare a boolean attribute. Then the getters and setters
+will work slightly different and remove the attribute when the value is false.
+
+When a property is registered with a trailing `()` a handler will be created.
+For this a handler is attached to the wrapped react component that will
+trigger a [`CustomEvent`](https://developer.mozilla.org/de/docs/Web/API/CustomEvent)
+on the actual web component DOM node. This allows you to listen to react event
+simply by listening to DOM events.
+
+Children of the web component somehow have to be inserted into the children
+of the react components. For this we use a [<slot>-tag], which is standard
+web component shadow DOM technology and built to handle cases like that.
 
 ## Examples
 
