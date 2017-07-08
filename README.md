@@ -227,6 +227,11 @@ You can see an example [here](https://github.com/ChristophP/web-react-components
 You can also clone the repo and run `npm i` and `npm start`.
 Open your browser at `http://localhost:8080`
 
+## Contributing
+
+PRs are highly welcome. If you need features are find bugs please submit an
+issue.
+
 ## Credits
 
 Made with countless hours of bouncing around ideas with @layflags. Also intially
