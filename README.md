@@ -227,3 +227,7 @@ You can see an example [here](https://github.com/ChristophP/web-react-components
 You can also clone the repo and run `npm i` and `npm start`.
 Open your browser at `http://localhost:8080`
 
+## Credits
+
+Made with countless hours of bouncing around ideas with @layflags. Also intially
+inspired by talks with @tkreis and @rtfeldman, @tomekwi at the Elm Europe 2017.
