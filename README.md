@@ -227,6 +227,9 @@ You can see an example [here](https://github.com/ChristophP/web-react-components
 You can also clone the repo and run `npm i` and `npm start`.
 Open your browser at `http://localhost:8080`
 
+There are even more examples in the
+[`examples` folder](https://github.com/ChristophP/web-react-components/tree/master/examples).
+
 ## Contributing
 
 PRs are highly welcome. If you need features or find bugs please submit an
