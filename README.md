@@ -60,7 +60,7 @@ register(nodeName, reactComponent, propsList)
 | --- | --- |
 | `nodeName` | A tag name for the web component to be created (Must contain a dash)|
 | `reactComponent` | An actual React Component Class / Stateless Function |
-| `propsList` | An array of strings which represent the props that should be wired up to React. There are 3 ways to declare a prop. <br>- `'propName'`: with a regular name the attribute value be JSON parsed and passed to React, if that fails then it will be passed as a String. This let you pass arbitrary data to the React component.<br>- `'!!propName'`: With leading bangs this property will be considered a boolean and pass `true` to React or `false` if the attribute is not present on the DOM node.<br>`'propName()'`: With trailing parens the property will be considered an event handler and set up event proxying between react and the DOM.|
+| `propsList` | An array of strings which represents the props that should be wired up to React. There are 3 ways to declare a prop. <br>- `'propName'`: with a regular name the attribute value be JSON parsed and passed to React, if that fails, then it will be passed as a String. This let you pass arbitrary data to the React component, even through DOM attributes.<br>- `'!!propName'`: With leading bangs this property will be considered a boolean and pass `true` to React or `false` if the attribute is not present on the DOM node.<br>- `'propName()'`: With trailing parens the property will be considered an event handler and set up event proxying between react and the DOM, so that it's possible to listen to React props handlers from the DOM.|
 
 Then in your code, import the registering function:
 
