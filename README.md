@@ -229,7 +229,7 @@ Open your browser at `http://localhost:8080`
 
 ## Contributing
 
-PRs are highly welcome. If you need features are find bugs please submit an
+PRs are highly welcome. If you need features or find bugs please submit an
 issue.
 
 ## Credits
