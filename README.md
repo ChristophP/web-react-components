@@ -51,7 +51,18 @@ the `custom-elements-es5-adapter`.**
 npm install -S web-react-components
 ```
 
-Then in your code, import the registering function.
+This module will expose a function to hook up your React component with a web component.
+
+```
+register(nodeName, reactComponent, propsList)
+```
+| Param | Description |
+| --- | --- |
+| `nodeName` | A tag name for the web component to be created (Must contain a dash)|
+| `reactComponent` | An actual React Component Class / Stateless Function |
+| `propsList` | An array of strings which represent the props that should be wired up to React. There are 3 ways to declare a prop. <br>- `'propName'`: with a regular name the attribute value be JSON parsed and passed to React, if that fails then it will be passed as a String. This let you pass arbitrary data to the React component.<br>- `'!!propName'`: With leading bangs this property will be considered a boolean and pass `true` to React or `false` if the attribute is not present on the DOM node.<br>`'propName()'`: With trailing parens the property will be considered an event handler and set up event proxying between react and the DOM.|
+
+Then in your code, import the registering function:
 
 ```js
 import React from 'react';
