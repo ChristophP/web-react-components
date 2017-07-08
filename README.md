@@ -1,7 +1,7 @@
 # Web React Components
 
 Put your React Components into a neat Web components wrapper and render them
-anywhere, not just in your react code.
+anywhere, not just in your React code.
 
 ## Motivation
 
@@ -9,7 +9,7 @@ We have lots of React code and really wanted to write Elm. Putting React inside 
 is not trivial and not being able to use our tried-and-tested components
 would have been a big reason against using Elm.
 So after watching Richard Feldman's [talk](https://www.youtube.com/watch?v=ar3TakwE8o0)
-we thought "what if Elm rendered just Web Components and the web components render
+we thought "what if Elm rendered just Web Components and the Web Components render
 whatever they want inside(in our case React)". So how to convert all of our React
 components into Web Components? Well, that is what this repo is for.
 
@@ -66,7 +66,7 @@ const YourComponent = ({ name, isDisabled,  onButtonClick }) => (
 
 // call it to register the web component
 // this will transform all <your-component>-tags in the markup
-// ATTENTION: all custom element tag names MUST contain a dash(LINK WC spec)
+// ATTENTION: all custom element tag names MUST contain a dash
 // use it anywhere like this:
 // <your-component name="Peter" isDisabled onClick="console.log('hello')"></your-component>
 register('your-component', YourComponent, [
@@ -144,7 +144,7 @@ the DOM.
 document.getElementById('#my-component').addEventListener('onClick', function() { ... }, false);
 
 // with the DOM Property (notice the uppercase `C`, because the name has to be the same as
-the property in React)
+// the property in React)
 document.getElementById('#my-component').onClick(function() { ... });
 
 // with the HTML Attributes
@@ -167,10 +167,10 @@ Children are passed like you would expect by simple add child nodes to the
 element or programmatically changing the `innerHMTL` or `childNodes` of a
 custom compoenent.
 
-The children will be part of the shadow DOM of the custom components and rendered
+The children will be part of the shadow DOM of the custom components and are rendered
 into a [`<slot>`-tag](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot).
 That `<slot>` will be passed to the React components as `children`,
-that you can render whereever you want.
+that you can render wherever you want.
 
 ```html
 <custom-component onClick="console.log('Hello')">
@@ -182,7 +182,7 @@ that you can render whereever you want.
 
 Since the React components, which are wrapped by the Web Component, will live in the
 [shadow DOM](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Shadow_DOM),
-global css will not have any effect on them(at least in browser, which are correcly
+global css will not have any effect on them(at least in browsers, which are correcly
 implementing it). Thus we recommend shipping the components with inline styles, an internal stylesheet, or
 or if you want to include an external stylesheet, use an `@import` declaration in
 an internal style tag, like this.
@@ -196,27 +196,29 @@ an internal style tag, like this.
 
 ## How does it work under the hood?
 
-For the ultimate source of truth the source code is pretty much all this this
-[file](https://github.com/ChristophP/web-react-components/blob/master/src/index.js)
+For the ultimate source of truth, the source code is pretty much all this this
+[file](https://github.com/ChristophP/web-react-components/blob/master/src/index.js).
 
 But here is a quick write-up:
 
-For each property that is declared with the exposed register function a DOM
+The whole React component will be inserted into the Shadow DOM.
+For each property that is declared with the exposed register function, a DOM
 attribute is created, that is being listened to for changes through
 the [`attributeChangedCallback`](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Custom_Elements).
-Also, a corresponding DOM node property is set up with getter and setters that
+Also, a corresponding DOM node property is set up with getter and setters, that
 keeps the property and the attribute in sync. Registering a property with a
 leading `!!` will declare a boolean attribute. Then the getters and setters
-will work slightly different and remove the attribute when the value is false.
+will work slightly different and pass a boolean value to React depending on the
+existence of the attribute.
 
-When a property is registered with a trailing `()` a handler will be created.
-For this a handler is attached to the wrapped react component that will
+When a property is registered with a trailing `()`, a handler will be created.
+A handler is attached to the wrapped React component, that will
 trigger a [`CustomEvent`](https://developer.mozilla.org/de/docs/Web/API/CustomEvent)
-on the actual web component DOM node. This allows you to listen to react event
-simply by listening to DOM events.
+on the actual web component DOM node and proxy data data to the web component.
+This allows you to listen to react event simply by listening to DOM events.
 
 Children of the web component somehow have to be inserted into the children
-of the react components. For this we use a [<slot>-tag], which is standard
+of the React components. For this, we use a [<slot>-tag], which is standard
 web component shadow DOM technology and built to handle cases like that.
 
 ## Examples
