@@ -216,7 +216,7 @@ The whole React component will be inserted into the Shadow DOM.
 For each property that is declared with the exposed register function, a DOM
 attribute is created, that is being listened to for changes through
 the [`attributeChangedCallback`](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Custom_Elements).
-Also, a corresponding DOM node property is set up with getter and setters, that
+Also, a corresponding DOM node property is set up with getters and setters, that
 keeps the property and the attribute in sync. Registering a property with a
 leading `!!` will declare a boolean attribute. Then the getters and setters
 will work slightly different and pass a boolean value to React depending on the
