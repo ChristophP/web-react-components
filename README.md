@@ -54,12 +54,12 @@ npm install -S web-react-components
 This module will expose a function to hook up your React component with a web component.
 
 ```
-register(nodeName, reactComponent, propsList)
+register(reactComponent, nodeName, propsList)
 ```
 | Param | Description |
 | --- | --- |
-| `nodeName` | A tag name for the web component to be created (Must contain a dash)|
 | `reactComponent` | An actual React Component Class / Stateless Function |
+| `nodeName` | A tag name for the web component to be created (Must contain a dash)|
 | `propsList` | An array of strings which represents the props that should be wired up to React. There are 3 ways to declare a prop. <br>- `'propName'`: with a regular name the attribute value be JSON parsed and passed to React, if that fails, then it will be passed as a String. This let you pass arbitrary data to the React component, even through DOM attributes.<br>- `'!!propName'`: With leading bangs this property will be considered a boolean and pass `true` to React or `false` if the attribute is not present on the DOM node.<br>- `'propName()'`: With trailing parens the property will be considered an event handler and set up event proxying between react and the DOM, so that it's possible to listen to React props handlers from the DOM.|
 
 Then in your code, import the registering function:
@@ -80,7 +80,7 @@ const YourComponent = ({ name, isDisabled,  onButtonClick }) => (
 // ATTENTION: all custom element tag names MUST contain a dash
 // use it anywhere like this:
 // <your-component name="Peter" isDisabled onClick="console.log('hello')"></your-component>
-register('your-component', YourComponent, [
+register(YourComponent, 'your-component', [
   // these attribute values will be json parsed
   'name',
   // this will define a boolean attribute
