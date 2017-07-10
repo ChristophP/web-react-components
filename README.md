@@ -229,7 +229,7 @@ on the actual web component DOM node and proxy data data to the web component.
 This allows you to listen to react event simply by listening to DOM events.
 
 Children of the web component somehow have to be inserted into the children
-of the React components. For this, we use a [`<slot>`-tag], which is standard
+of the React components. For this, we use a `<slot>`-tag, which is standard
 web component shadow DOM technology and built to handle cases like that.
 
 ## Examples
