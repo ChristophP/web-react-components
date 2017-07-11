@@ -141,8 +141,7 @@ const getType = (name) => {
  *   first case all prop types will default to the JSON type unless the
  *   prop name starts with "on", then it will be an event type.
  */
-
-function register(ReactComponent, tagName, propNames) {
+function register(ReactComponent, tagName, propNames = []) {
   const createMap = obj => objectFromArray(getType, obj);
   const cleanKeys = obj => mapObjectKeys(sanitizeAttributeName, obj);
   const mapping = pipe(createMap, cleanKeys)(propNames);
