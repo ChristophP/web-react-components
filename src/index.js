@@ -17,7 +17,10 @@ const Types = {
   json: 'json',
 };
 
-const mapAttributeToProp = (node, name) => node[name];
+const mapAttributeToProp = (node, name) =>
+  // return 'undefined' instead of 'null' for missing attributes / properties
+  // so that React's default props apply
+  (node[name] === null ? undefined : node[name]);
 
 const mapEventToProp = (node, name) => {
   // accessing properties instead of attributes here
