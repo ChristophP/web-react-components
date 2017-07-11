@@ -133,16 +133,14 @@ const getType = (name) => {
 };
 
 /**
- * Function to register React components as web componenents
- * ReactComponent: A react component
- * tagName: A String name for the new custom tag
- * mappingArg: Either an array of string property names to be connected with
- *   the React components, or an object mapping prop names to types. In the
- *   first case all prop types will default to the JSON type unless the
- *   prop name starts with "on", then it will be an event type.
+ * Function to register React Components as Web Components
+ * @param {class} ReactComponent - A react component
+ * @param {string} tagName - A name for the new custom tag
+ * @param {string[]} [propNames] - An optional list of property names to be
+ * connected with the React component.
+ * @returns {class} - The custom element class
  */
-
-function register(ReactComponent, tagName, propNames) {
+function register(ReactComponent, tagName, propNames = []) {
   const createMap = obj => objectFromArray(getType, obj);
   const cleanKeys = obj => mapObjectKeys(sanitizeAttributeName, obj);
   const mapping = pipe(createMap, cleanKeys)(propNames);
