@@ -134,7 +134,7 @@ const getType = (name) => {
 
 /**
  * Function to register React Components as Web Components
- * @param {ReactClass} ReactComponent - A react component
+ * @param {class} ReactComponent - A react component
  * @param {string} tagName - A name for the new custom tag
  * @param {string[]} [propNames] - An optional list of property names to be
  * connected with the React component.
