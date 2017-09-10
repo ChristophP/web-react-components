@@ -54,13 +54,14 @@ npm install -S web-react-components
 This module will expose a function to hook up your React component with a web component.
 
 ```
-register(reactComponent, nodeName, propsList)
+register(reactComponent, nodeName, propsList, eventMappers = {})
 ```
 | Param | Description |
 | --- | --- |
 | `reactComponent` | An actual React Component Class / Stateless Function |
 | `nodeName` | A tag name for the web component to be created (Must contain a dash)|
 | `propsList` | An array of strings which represents the props that should be wired up to React. There are 3 ways to declare a prop. <br>- `'propName'`: with a regular name the attribute value be JSON parsed and passed to React, if that fails, then it will be passed as a String. This let you pass arbitrary data to the React component, even through DOM attributes.<br>- `'!!propName'`: With leading bangs this property will be considered a boolean and pass `true` to React or `false` if the attribute is not present on the DOM node.<br>- `'propName()'`: With trailing parens the property will be considered an event handler and set up event proxying between react and the DOM, so that it's possible to listen to React props handlers from the DOM.|
+| `eventMappers` | An optional object with function values. The keys are handler property names (e.g. `onChange`) and the values are functions with the following signature `(...args) => Event\|null`. The returned event will then be dispatched on the Web Component. If null is returned nothing is dispatched. *Note: EventMappers will override any event definitions in the propertyList parameter.* |
 
 Then in your code, import the registering function:
 
@@ -85,9 +86,13 @@ register(YourComponent, 'your-component', [
   'name',
   // this will define a boolean attribute
   '!!isDisabled',
-  // a handler
-  'onButtonClick()',
-]);
+  ],
+  // handlers can be created here. The functions of the object can return any
+  // new instance of `Event` or `CustomEvent`
+  {
+    onButtonClick: e => new Event('buttonclick', { bubbles: true }),
+  }
+);
 ```
 
 Then you can render the component from anywhere (even Elm, React, plain HTML, Angular if you really have to :-))
@@ -108,7 +113,7 @@ view model = div [] [
   yourComponent
     [ attribute "name" "Peter"
     , property "isDisabled" (Json.Encode.bool True)
-    , on "onButtonClick" (Decode.succeed ButtonClick)
+    , on "buttonclick" (Decode.succeed ButtonClick)
     ]
     [ span [style ("color", "green")] [text "Click Me"]
   ]
@@ -147,25 +152,26 @@ document.getElementById('your-dom-id').numbers = [1, 2, 3, 4];
 
 ### Events
 
-Events can be passed in 3 different ways that you should be familiar with from
+Events can be listened to in 3 different ways that you should be familiar with from
 the DOM.
 
 ```js
-// with `addEventListener()`
-document.getElementById('#my-component').addEventListener('onClick', function() { ... }, false);
+// with `addEventListener()`. The event name will be used here, so use the type of
+the returned event from the `eventMappers` parameter.
+document.getElementById('#my-component').addEventListener('change', function() { ... }, false);
 
 // with the DOM Property (notice the uppercase `C`, because the name has to be the same as
 // the property in React)
-document.getElementById('#my-component').onClick(function() { ... });
+document.getElementById('#my-component').onChange = function() { ... };
 
 // with the HTML Attributes
-<custom-component onClick="console.log('Hello')"></custom-component>
+<custom-component onChange="console.log('Hello')"></custom-component>
 ```
 To access data from the original event from React you will have to
 do something like this:
 
 ```js
-document.getElementById('#my-component').addEventListener('onClick', function(event) {
+document.getElementById('#my-component').addEventListener('change', function(event) {
   // data is an array of arguments that were passed to the react event handler
   const data = event.detail;
   // log the first arg of the react event handler

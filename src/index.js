@@ -141,6 +141,8 @@ const getType = (name) => {
  * @param {string} tagName - A name for the new custom tag
  * @param {string[]} [propNames] - An optional list of property names to be
  * connected with the React component.
+ * @param {Object} [eventMappers] - An optional map of functions which can
+ * return an event to be dispatched
  * @returns {class} - The custom element class
  */
 function register(ReactComponent, tagName, propNames = [], eventMappers = {}) {

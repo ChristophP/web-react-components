@@ -76,7 +76,10 @@
       // if null is returned nothing no DOM event is dispatched
       {
         onClickButton: e => {
-          return null; // don't dispatch more events because click is already bubbling
+          // then `composed` property of click is true, but we don't want it
+          // to bubble into the light DOM, instead we dispatch our own event.
+          e.stopPropagation();
+          return new Event('clickbutton', { bubbles: true }); // don't dispatch more events because click is already bubbling
         },
         onHoverName: e => {
           return new Event('hovername', { bubbles: true });
