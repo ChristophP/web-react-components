@@ -63,24 +63,36 @@
     // register react component as custom element
     const WRC = WebReactComponents;
     WRC.register(MyComponent, 'my-component', [
-      // these will be json parsed
-      'name',
-      'age',
-      'fruits',
-      'config',
-      // specify a boolean attribute like this
-      '!!isActive',
-      // these will be handlers
-      'onClickButton()',
-      'onHoverName()',
-    ]);
+        // these will be json parsed
+        'name',
+        'age',
+        'fruits',
+        'config',
+        // specify a boolean attribute like this
+        '!!isActive',
+      ],
+      // specify mappers for events, the function receives the arguments
+      // the react handler receives and dispatched an event on the web component
+      // if null is returned nothing no DOM event is dispatched
+      {
+        onClickButton: e => {
+          // then `composed` property of click is true, but we don't want it
+          // to bubble into the light DOM, instead we dispatch our own event.
+          e.stopPropagation();
+          return new Event('clickbutton', { bubbles: true }); // don't dispatch more events because click is already bubbling
+        },
+        onHoverName: e => {
+          return new Event('hovername', { bubbles: true });
+        },
+      }
+    );
 
     // add some DOM Level 3 event handlers
     const c = document.getElementById('myComponent');
-    c.addEventListener('onClickButton', function(e) {
+    c.addEventListener('clickbutton', function(e) {
       console.log('Event `onClickButton` triggered', e)
     });
-    c.addEventListener('onHoverName', function(e) {
+    c.addEventListener('hovername', function(e) {
       console.log('Event `onHoverName` triggered', e)
     });
     c.name = 'Fritz';
