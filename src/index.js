@@ -143,16 +143,25 @@ const getType = (name) => {
  * connected with the React component.
  * @returns {class} - The custom element class
  */
-function register(ReactComponent, tagName, propNames = []) {
+function register(ReactComponent, tagName, propNames = [], eventMappers = {}) {
   const createMap = obj => objectFromArray(getType, obj);
   const cleanKeys = obj => mapObjectKeys(sanitizeAttributeName, obj);
   const mapping = pipe(createMap, cleanKeys)(propNames);
 
   const attributeNames = Object.keys(mapping).map(name => name.toLowerCase());
 
+  const dispatcher = component => mapper => (...args) => {
+    const event = mapper(...args);
+    if (event) { component.dispatchEvent(event); }
+  };
+
   // render should be private
   const render = (component) => {
-    const props = mapToProps(component, mapping);
+    const props = {
+      ...mapToProps(component, mapping),
+      // add event mappers, will possibly override the ones in attribute
+      ...mapObject(dispatcher(component), eventMappers),
+    };
 
     ReactDOM.render(
       React.createElement(ReactComponent, props, React.createElement('slot')),
