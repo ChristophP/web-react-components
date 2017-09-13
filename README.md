@@ -51,20 +51,9 @@ the `custom-elements-es5-adapter`.**
 npm install -S web-react-components
 ```
 
-This module will expose a function to hook up your React component with a web component.
-
-```
-register(reactComponent, nodeName, propsList, eventMappers = {})
-```
-| Param | Description |
-| --- | --- |
-| `reactComponent` | An actual React Component Class / Stateless Function |
-| `nodeName` | A tag name for the web component to be created (Must contain a dash)|
-| `propsList` | An array of strings which represents the props that should be wired up to React. There are 3 ways to declare a prop. <br>- `'propName'`: with a regular name the attribute value be JSON parsed and passed to React, if that fails, then it will be passed as a String. This let you pass arbitrary data to the React component, even through DOM attributes.<br>- `'!!propName'`: With leading bangs this property will be considered a boolean and pass `true` to React or `false` if the attribute is not present on the DOM node.<br>- `'propName()'`: With trailing parens the property will be considered an event handler and set up event proxying between react and the DOM, so that it's possible to listen to React props handlers from the DOM.|
-| `eventMappers` | An optional object with function values. The keys are handler property names (e.g. `onChange`) and the values are functions with the following signature `(...args) => Event\|null`. The returned event will then be dispatched on the Web Component. If null is returned nothing is dispatched. *Note: EventMappers will override any event definitions in the propertyList parameter.* |
+This module will expose functions to hook up your React component with a web component.
 
 Then in your code, import the registering function:
-
 ```js
 import React from 'react';
 // import the registering function
@@ -94,6 +83,56 @@ register(YourComponent, 'your-component', [
   }
 );
 ```
+
+## API
+
+### Register
+
+The `register` function takes a ReactComponent and registers it using
+`customElements.define(...)`.
+
+
+```
+register(reactComponent, nodeName, propsList, eventMappers = {})
+```
+| Param | Description |
+| --- | --- |
+| `reactComponent` | An actual React Component Class / Stateless Function |
+| `nodeName` | A tag name for the web component to be created (Must contain a dash)|
+| `propsList` | An array of strings which represents the props that should be wired up to React. There are 3 ways to declare a prop. <br>- `'propName'`: with a regular name the attribute value be JSON parsed and passed to React, if that fails, then it will be passed as a String. This let you pass arbitrary data to the React component, even through DOM attributes.<br>- `'!!propName'`: With leading bangs this property will be considered a boolean and pass `true` to React or `false` if the attribute is not present on the DOM node.<br>- `'propName()'`: With trailing parens the property will be considered an event handler and set up event proxying between react and the DOM, so that it's possible to listen to React props handlers from the DOM.|
+| `eventMappers` | An optional object with function values. The keys are handler property names (e.g. `onChange`) and the values are functions with the following signature `(...args) => Event\|null`. The returned event will then be dispatched on the Web Component. If null is returned nothing is dispatched. *Note: EventMappers will override any event definitions in the propertyList parameter.* |
+| returns `WebComponent class` | An class which is already registered using `customElements.define(...)` |
+
+### Convert
+
+Convert is almost the same as `register` except you have to register the
+Component yourself. Do this when you want further extend the component before
+registering it.
+
+```
+// This function will return you a webcomponent instance
+convert(reactComponent, propsList, eventMappers = {})
+```
+| Param | Description |
+| --- | --- |
+| `reactComponent` | An actual React Component Class / Stateless Function |
+| `propsList` | An array of strings which represents the props that should be wired up to React. There are 3 ways to declare a prop. <br>- `'propName'`: with a regular name the attribute value be JSON parsed and passed to React, if that fails, then it will be passed as a String. This let you pass arbitrary data to the React component, even through DOM attributes.<br>- `'!!propName'`: With leading bangs this property will be considered a boolean and pass `true` to React or `false` if the attribute is not present on the DOM node.<br>- `'propName()'`: With trailing parens the property will be considered an event handler and set up event proxying between react and the DOM, so that it's possible to listen to React props handlers from the DOM.|
+| `eventMappers` | An optional object with function values. The keys are handler property names (e.g. `onChange`) and the values are functions with the following signature `(...args) => Event\|null`. The returned event will then be dispatched on the Web Component. If null is returned nothing is dispatched. *Note: EventMappers will override any event definitions in the propertyList parameter.* |
+| returns `WebComponent class` | An class which can then be used to register using `customElements.define(...)` |
+
+You can the use it like this:
+```js
+import { convert } from 'web-react-components';
+
+const MyComponent = convert(MyReactComponet, ['name', 'type'],
+  {
+    onChange: (e) => new Event('crazyChange', { bubbles: true }),
+  });
+
+// register it here
+customElements.define('my-component', MyComponent);
+```
+## Examples
 
 Then you can render the component from anywhere (even Elm, React, plain HTML, Angular if you really have to :-))
 
@@ -238,7 +277,7 @@ Children of the web component somehow have to be inserted into the children
 of the React components. For this, we use a `<slot>`-tag, which is standard
 web component shadow DOM technology and built to handle cases like that.
 
-## Examples
+## More Examples
 
 You can see an example [here](https://github.com/ChristophP/web-react-components/blob/master/dev-assets/index.html).
 You can also clone the repo and run `npm i` and `npm start`.
