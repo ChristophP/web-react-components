@@ -136,16 +136,15 @@ const getType = (name) => {
 };
 
 /**
- * Function to register React Components as Web Components
+ * Function to convert a React Components to a Web Components
  * @param {class} ReactComponent - A react component
- * @param {string} tagName - A name for the new custom tag
  * @param {string[]} [propNames] - An optional list of property names to be
  * connected with the React component.
  * @param {Object} [eventMappers] - An optional map of functions which can
  * return an event to be dispatched
  * @returns {class} - The custom element class
  */
-function register(ReactComponent, tagName, propNames = [], eventMappers = {}) {
+function convert(ReactComponent, propNames = [], eventMappers = {}) {
   const createMap = obj => objectFromArray(getType, obj);
   const cleanKeys = obj => mapObjectKeys(sanitizeAttributeName, obj);
   const mapping = pipe(createMap, cleanKeys)(propNames);
@@ -198,14 +197,33 @@ function register(ReactComponent, tagName, propNames = [], eventMappers = {}) {
   // and event handlers
   definePropertiesFor(WebReactComponent, mapping);
 
-  return customElements.define(tagName, WebReactComponent);
+  return WebReactComponent;
+}
+
+/**
+ * Function to register React Components as Web Components
+ * @param {class} ReactComponent - A react component
+ * @param {string} tagName - A name for the new custom tag
+ * @param {string[]} [propNames] - An optional list of property names to be
+ * connected with the React component.
+ * @param {Object} [eventMappers] - An optional map of functions which can
+ * return an event to be dispatched
+ * @returns {class} - The custom element class
+ */
+function register(ReactComponent, tagName, propNames = [], eventMappers = {}) {
+  return customElements.define(
+    tagName,
+    convert(ReactComponent, propNames, eventMappers),
+  );
 }
 
 export default {
   register,
+  convert,
 };
 
 export {
   register,
+  convert,
 };
 
