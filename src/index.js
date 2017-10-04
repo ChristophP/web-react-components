@@ -55,10 +55,13 @@ const mapToPropertyDescriptor = (
   name,
   type,
 ) => {
+  const defaults = { enumerable: true, configurable: true };
+
   // handlers
   if (type === Types.event) {
     let eventHandler;
     return {
+      ...defaults,
       get() {
         // return event handler assigned via propery if available
         if (typeof eventHandler !== 'undefined') return eventHandler;
@@ -85,6 +88,7 @@ const mapToPropertyDescriptor = (
   // booleans
   if (type === Types.bool) {
     return {
+      ...defaults,
       get() {
         return this.hasAttribute(name);
       },
@@ -96,6 +100,7 @@ const mapToPropertyDescriptor = (
 
   // json
   return {
+    ...defaults,
     get() {
       const value = this.getAttribute(name);
 
