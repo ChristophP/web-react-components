@@ -4,7 +4,7 @@
     "type": "git",
     "url": "https://github.com/ChristophP/web-react-components"
   },
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "A web component wrapper around React Components",
   "main": "dist/bundle.js",
   "scripts": {
