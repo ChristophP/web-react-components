@@ -149,7 +149,7 @@ const getType = (name) => {
  * return an event to be dispatched
  * @returns {class} - The custom element class
  */
-function convert(ReactComponent, propNames = [], eventMappers = {}) {
+function convert(ReactComponent, propNames = [], eventMappers = {}, options = { useShadowDOM: true }) {
   const createMap = obj => objectFromArray(getType, obj);
   const cleanKeys = obj => mapObjectKeys(sanitizeAttributeName, obj);
   const mapping = pipe(createMap, cleanKeys)(propNames);
@@ -169,9 +169,11 @@ function convert(ReactComponent, propNames = [], eventMappers = {}) {
       ...mapObject(dispatcher(component), eventMappers),
     };
 
+    const rootElement = options.useShadowDOM ? component.shadowRoot : component;
+
     ReactDOM.render(
       React.createElement(ReactComponent, props, React.createElement('slot')),
-      component.shadowRoot,
+      rootElement
     );
   };
 
@@ -182,7 +184,9 @@ function convert(ReactComponent, propNames = [], eventMappers = {}) {
 
     constructor() {
       super();
-      this.attachShadow({ mode: 'open' });
+      if (options.useShadowDOM) {
+        this.attachShadow({ mode: 'open' });
+      }
     }
 
     connectedCallback() {
@@ -194,7 +198,9 @@ function convert(ReactComponent, propNames = [], eventMappers = {}) {
     }
 
     disconnectedCallback() {
-      ReactDOM.unmountComponentAtNode(this.shadowRoot);
+      const rootElement = options.useShadowDOM ? this.shadowRoot : this;
+
+      ReactDOM.unmountComponentAtNode(rootElement);
     }
   }
 
@@ -215,10 +221,10 @@ function convert(ReactComponent, propNames = [], eventMappers = {}) {
  * return an event to be dispatched
  * @returns {class} - The custom element class
  */
-function register(ReactComponent, tagName, propNames = [], eventMappers = {}) {
+function register(ReactComponent, tagName, propNames = [], eventMappers = {}, options = { useShadowDOM: true }) {
   return customElements.define(
     tagName,
-    convert(ReactComponent, propNames, eventMappers),
+    convert(ReactComponent, propNames, eventMappers, options),
   );
 }
 
