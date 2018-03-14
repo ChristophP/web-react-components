@@ -20,7 +20,7 @@ const Types = {
 const mapAttributeToProp = (node, name) =>
   // return 'undefined' instead of 'null' for missing attributes / properties
   // so that React's default props apply
-  (node[name] === null ? undefined : node[name]);
+  node[name] === null ? undefined : node[name];
 
 const mapEventToProp = (node, name) => {
   // accessing properties instead of attributes here
@@ -44,17 +44,14 @@ const mapEventToProp = (node, name) => {
 };
 
 const mapToProps = (node, mapping) => {
-  const mapFunc = (type, name) => (type === Types.event
-    ? mapEventToProp(node, name)
-    : mapAttributeToProp(node, name)
-  );
+  const mapFunc = (type, name) =>
+    type === Types.event
+      ? mapEventToProp(node, name)
+      : mapAttributeToProp(node, name);
   return mapObject(mapFunc, mapping);
 };
 
-const mapToPropertyDescriptor = (
-  name,
-  type,
-) => {
+const mapToPropertyDescriptor = (name, type) => {
   const defaults = { enumerable: true, configurable: true };
 
   // handlers
@@ -79,7 +76,7 @@ const mapToPropertyDescriptor = (
         }
       },
       set(value) {
-        eventHandler = (typeof value === 'function') ? value : null;
+        eventHandler = typeof value === 'function' ? value : null;
         this.attributeChangedCallback();
       },
     };
@@ -112,7 +109,7 @@ const mapToPropertyDescriptor = (
       }
     },
     set(value) {
-      const str = (typeof value === 'string') ? value : JSON.stringify(value);
+      const str = typeof value === 'string' ? value : JSON.stringify(value);
       this.setAttribute(name, str);
     },
   };
@@ -149,7 +146,12 @@ const getType = (name) => {
  * return an event to be dispatched
  * @returns {class} - The custom element class
  */
-function convert(ReactComponent, propNames = [], eventMappers = {}, options = { useShadowDOM: true }) {
+function convert(
+  ReactComponent,
+  propNames = [],
+  eventMappers = {},
+  options = { useShadowDOM: true },
+) {
   const createMap = obj => objectFromArray(getType, obj);
   const cleanKeys = obj => mapObjectKeys(sanitizeAttributeName, obj);
   const mapping = pipe(createMap, cleanKeys)(propNames);
@@ -158,7 +160,9 @@ function convert(ReactComponent, propNames = [], eventMappers = {}, options = { 
 
   const dispatcher = component => mapper => (...args) => {
     const event = mapper(...args);
-    if (event) { component.dispatchEvent(event); }
+    if (event) {
+      component.dispatchEvent(event);
+    }
   };
 
   // render should be private
@@ -173,7 +177,7 @@ function convert(ReactComponent, propNames = [], eventMappers = {}, options = { 
 
     ReactDOM.render(
       React.createElement(ReactComponent, props, React.createElement('slot')),
-      rootElement
+      rootElement,
     );
   };
 
@@ -221,7 +225,13 @@ function convert(ReactComponent, propNames = [], eventMappers = {}, options = { 
  * return an event to be dispatched
  * @returns {class} - The custom element class
  */
-function register(ReactComponent, tagName, propNames = [], eventMappers = {}, options = { useShadowDOM: true }) {
+function register(
+  ReactComponent,
+  tagName,
+  propNames = [],
+  eventMappers = {},
+  options = { useShadowDOM: true },
+) {
   return customElements.define(
     tagName,
     convert(ReactComponent, propNames, eventMappers, options),
@@ -233,8 +243,4 @@ export default {
   convert,
 };
 
-export {
-  register,
-  convert,
-};
-
+export { register, convert };

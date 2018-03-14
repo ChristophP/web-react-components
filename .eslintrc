@@ -5,5 +5,8 @@
   },
   "extends": [
     "airbnb"
-  ]
+  ],
+  "rules": {
+    "no-confusing-arrow": 0,
+  }
 }
