@@ -3,18 +3,17 @@ const path = require('path');
 module.exports = {
   entry: './src/index.js',
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve('dist'),
     filename: 'bundle.js',
     library: 'WebReactComponents',
     libraryTarget: 'umd',
   },
   module: {
     rules: [{
-      test: /\.jsx?$/,
+      test: /\.js$/,
       exclude: /node_modules/,
       loaders: [
         'babel-loader',
-        'eslint-loader',
       ],
     }],
   },
@@ -33,7 +32,7 @@ module.exports = {
     },
   },
   devServer: {
-    contentBase: path.join(__dirname, 'dev-assets'),
+    contentBase: path.resolve('dev-assets'),
     port: process.env.PORT || 8080,
     host: '0.0.0.0',
     disableHostCheck: true,
