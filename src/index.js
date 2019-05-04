@@ -1,5 +1,7 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+// eslint-disable-next-line import/no-unresolved
+import React from "react";
+// eslint-disable-next-line import/no-unresolved
+import ReactDOM from "react-dom";
 import {
   pipe,
   isBoolConvention,
@@ -9,12 +11,12 @@ import {
   mapObjectKeys,
   sanitizeAttributeName,
   setBooleanAttribute,
-} from './util';
+} from "./util";
 
 const Types = {
-  bool: 'bool',
-  event: 'event',
-  json: 'json',
+  bool: "bool",
+  event: "event",
+  json: "json",
 };
 
 const mapAttributeToProp = (node, name) =>
@@ -37,7 +39,7 @@ const mapEventToProp = (node, name) => {
     node.dispatchEvent(domEvent);
 
     // call event handler if defined
-    if (typeof handler === 'function') {
+    if (typeof handler === "function") {
       handler.call(node, domEvent);
     }
   };
@@ -61,7 +63,7 @@ const mapToPropertyDescriptor = (name, type) => {
       ...defaults,
       get() {
         // return event handler assigned via propery if available
-        if (typeof eventHandler !== 'undefined') return eventHandler;
+        if (typeof eventHandler !== "undefined") return eventHandler;
 
         // return null if event handler attribute wasn't defined
         const value = this.getAttribute(name);
@@ -76,7 +78,7 @@ const mapToPropertyDescriptor = (name, type) => {
         }
       },
       set(value) {
-        eventHandler = typeof value === 'function' ? value : null;
+        eventHandler = typeof value === "function" ? value : null;
         this.attributeChangedCallback();
       },
     };
@@ -109,25 +111,25 @@ const mapToPropertyDescriptor = (name, type) => {
       }
     },
     set(value) {
-      const str = typeof value === 'string' ? value : JSON.stringify(value);
+      const str = typeof value === "string" ? value : JSON.stringify(value);
       this.setAttribute(name, str);
     },
   };
 };
 
 const definePropertiesFor = (WebComponent, mapping) => {
-  Object.keys(mapping).forEach((name) => {
+  Object.keys(mapping).forEach(name => {
     const type = mapping[name];
 
     Object.defineProperty(
       WebComponent.prototype,
       name,
-      mapToPropertyDescriptor(name, type),
+      mapToPropertyDescriptor(name, type)
     );
   });
 };
 
-const getType = (name) => {
+const getType = name => {
   if (isBoolConvention(name)) {
     return Types.bool;
   }
@@ -150,11 +152,14 @@ function convert(
   ReactComponent,
   propNames = [],
   eventMappers = {},
-  options = { useShadowDOM: true },
+  options = { useShadowDOM: true }
 ) {
   const createMap = obj => objectFromArray(getType, obj);
   const cleanKeys = obj => mapObjectKeys(sanitizeAttributeName, obj);
-  const mapping = pipe(createMap, cleanKeys)(propNames);
+  const mapping = pipe(
+    createMap,
+    cleanKeys
+  )(propNames);
 
   const attributeNames = Object.keys(mapping).map(name => name.toLowerCase());
 
@@ -166,7 +171,7 @@ function convert(
   };
 
   // render should be private
-  const render = (component) => {
+  const render = component => {
     const props = {
       ...mapToProps(component, mapping),
       // add event mappers, will possibly override the ones in attribute
@@ -176,8 +181,8 @@ function convert(
     const rootElement = options.useShadowDOM ? component.shadowRoot : component;
 
     ReactDOM.render(
-      React.createElement(ReactComponent, props, React.createElement('slot')),
-      rootElement,
+      React.createElement(ReactComponent, props, React.createElement("slot")),
+      rootElement
     );
   };
 
@@ -189,7 +194,7 @@ function convert(
     constructor() {
       super();
       if (options.useShadowDOM) {
-        this.attachShadow({ mode: 'open' });
+        this.attachShadow({ mode: "open" });
       }
     }
 
@@ -230,11 +235,11 @@ function register(
   tagName,
   propNames = [],
   eventMappers = {},
-  options = { useShadowDOM: true },
+  options = { useShadowDOM: true }
 ) {
   return customElements.define(
     tagName,
-    convert(ReactComponent, propNames, eventMappers, options),
+    convert(ReactComponent, propNames, eventMappers, options)
   );
 }
 

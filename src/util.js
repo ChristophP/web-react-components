@@ -11,15 +11,15 @@ export const objectFromArray = (createValue, arr) =>
 
 // map an object's values, the callback function gets the value,
 // the key and the input object
-export const mapObject = (fn, obj) => Object.keys(obj).reduce(
-  (acc, key) => ({ ...acc, [key]: fn(obj[key], key, obj) })
-, {});
+export const mapObject = (fn, obj) =>
+  Object.keys(obj).reduce(
+    (acc, key) => ({ ...acc, [key]: fn(obj[key], key, obj) }),
+    {}
+  );
 
 // map an object's keys, the callback function gets the current key
-export const mapObjectKeys = (fn, obj) => Object.keys(obj).reduce(
-  (acc, key) => ({ ...acc, [fn(key)]: obj[key] })
-, {});
-
+export const mapObjectKeys = (fn, obj) =>
+  Object.keys(obj).reduce((acc, key) => ({ ...acc, [fn(key)]: obj[key] }), {});
 
 // ATTRIBUTE CONVENTIONS
 const boolRegex = /^!!/;
@@ -34,18 +34,16 @@ export const isBoolConvention = prop => boolRegex.test(prop);
 export const isHandlerConvention = prop => handlerRegex.test(prop);
 
 // clean an attribute name from modifiers like !! and ()
-export const sanitizeAttributeName =
-  prop => prop.replace(boolRegex, '').replace(handlerRegex, '');
-
+export const sanitizeAttributeName = prop =>
+  prop.replace(boolRegex, "").replace(handlerRegex, "");
 
 // IMPURE
 
 // properly `set the value` for boolean attributes
 export const setBooleanAttribute = (node, name, value) => {
   if (value) {
-    node.setAttribute(name, '');
+    node.setAttribute(name, "");
   } else {
     node.removeAttribute(name);
   }
 };
-
