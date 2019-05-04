@@ -10,13 +10,13 @@ import {
   mapObject,
   mapObjectKeys,
   sanitizeAttributeName,
-  setBooleanAttribute
+  setBooleanAttribute,
 } from "./util";
 
 const Types = {
   bool: "bool",
   event: "event",
-  json: "json"
+  json: "json",
 };
 
 const mapAttributeToProp = (node, name) =>
@@ -34,7 +34,7 @@ const mapEventToProp = (node, name) => {
     const domEvent = new CustomEvent(name, {
       bubbles: true,
       cancelable: true,
-      detail: origArgs // store original arguments from handler
+      detail: origArgs, // store original arguments from handler
     });
     node.dispatchEvent(domEvent);
 
@@ -80,7 +80,7 @@ const mapToPropertyDescriptor = (name, type) => {
       set(value) {
         eventHandler = typeof value === "function" ? value : null;
         this.attributeChangedCallback();
-      }
+      },
     };
   }
 
@@ -93,7 +93,7 @@ const mapToPropertyDescriptor = (name, type) => {
       },
       set(value) {
         setBooleanAttribute(this, name, value);
-      }
+      },
     };
   }
 
@@ -113,7 +113,7 @@ const mapToPropertyDescriptor = (name, type) => {
     set(value) {
       const str = typeof value === "string" ? value : JSON.stringify(value);
       this.setAttribute(name, str);
-    }
+    },
   };
 };
 
@@ -175,7 +175,7 @@ function convert(
     const props = {
       ...mapToProps(component, mapping),
       // add event mappers, will possibly override the ones in attribute
-      ...mapObject(dispatcher(component), eventMappers)
+      ...mapObject(dispatcher(component), eventMappers),
     };
 
     const rootElement = options.useShadowDOM ? component.shadowRoot : component;
@@ -245,7 +245,7 @@ function register(
 
 export default {
   register,
-  convert
+  convert,
 };
 
 export { register, convert };
